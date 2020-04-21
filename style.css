@@ -36,7 +36,7 @@ h1 {
 }
 
   .card .fab {
-    font-size: 180px;
+    font-size: 100px;
   }
 
   /* Desktops - set borders */
@@ -108,7 +108,8 @@ h1 {
 
   .card img {
     z-index: 1;
-    opacity: .4;
+    opacity: .8;
+    
 
     transition:  opacity .3s ease-in-out;
   }
