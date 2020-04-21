@@ -27,10 +27,11 @@ window.colorA= new THREE.Color(255, 255, 0);
 window.colorB= new THREE.Color(255, 0, 0);
 window.sizeBrush = 10.;
 function addGuiControls(){
-    var gui = new dat.GUI({ load: guiData });
+    window.gui = new dat.GUI({ load: guiData });
+
+
+
     gui.remember(this);
-
-
     gui.addColor(this,"colorA");
     gui.addColor(this,"colorB"); 
     gui.add(this, "sizeBrush",10.,100.).step(1.);  
