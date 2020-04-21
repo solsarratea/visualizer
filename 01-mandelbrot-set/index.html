@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>01 - Mandelbrot Set </title><meta charset="utf-8">
+  <title>Mandelbrot Set Visualizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://threejs.org/examples/js/controls/DragControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <script src="/core/threex.domevents.js"></script>
+
+  <meta name="description" content="visualizing shaders with three.js experiment">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      border: 0;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .github-link {
+      top: 20px;
+      right: 20px;
+      color:  rgb(245, 245, 245);
+      text-decoration: none;
+      transition: all .2s ease-in-out;
+
+    }
+
+    .github-link .fab {
+      font-size: 38px; 
+      display: inline-block; 
+      vertical-align: middle;
+      padding: .2em .5em;
+    }
+    .github-link .text { 
+      color: 'white';
+      display: none;
+      font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+      font-size: 16px;
+      
+    }
+
+    .github-link:hover .text { 
+      display: inline-block; 
+    }
+
+    .github-link:hover .fab {
+      color: rgb(245, 245, 245);
+    }
+  </style>
+</head>
+
+<body>
+  <a href="https://github.com/solsarratea/fractals-visualizer" class="github-link" title="View source on Github" >
+    <span class="fab fa-github"></span>
+    <span class="text">View source</span>
+  </a>
+  <script id="vertexShader" type="x-shader/x-fragment">
+    varying vec2 vUv;
+
+    void main()
+    {
+      vUv = uv;
+      vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+      gl_Position = projectionMatrix * mvPosition;
+    }
+ </script>
+ <script id="mandelbrotFragmentShader" type="x-shader/x-fragment">
+    uniform float time;
+    uniform float zoom;
+    uniform float orX;
+    uniform float orY;
+    uniform float scale;
+    varying vec2 vUv;
+    uniform vec3 colorA;
+    uniform vec3 colorB;
+    uniform vec3 colorC;
+    uniform vec3 colorD;
+    uniform float t;
+
+     vec3 bump3 (vec3 x) {
+        vec3 y = vec3(1.,1.,1.) - x * x;
+        y = max(y, vec3(0.,0.,0.));
+        return y;
+    }
+    vec3 palette( float t) {
+        return colorA/255. + colorB/255.*cos( 9.28*(colorC/255.*t+colorD/255.) );
+    }
+
+
+        vec3 spectralGems (float x) {
+            return bump3
+            (   vec3
+                (
+                    4. * (x - 0.7), // Red
+                    4. * (x - 0.5), // Green
+                    4. * (x - 0.23) // Blue
+                )
+            );
+        }
+
+
+        float distanceEstimatorMandelbrot(vec2 c) {
+            vec2 z = vec2(0.);
+            vec2 dz = vec2(0.); 
+
+            float m2 = 255.;
+            float dis = 1000.;
+            
+        
+            for( int i=0; i<1000; i++ )
+            {
+                if( m2 > 1000.0) {  break; }
+
+                dz = 2.0*vec2(z.x*dz.x-z.y*dz.y, z.x*dz.y + z.y*dz.x) + vec2(1.);
+
+                z = vec2( z.x*z.x - z.y*z.y, 2.0*z.x*z.y ) + c;
+        
+
+                m2 = dot(z,z);  
+            }
+            return sqrt( m2/dot(dz,dz) )*log(m2) *0.5;
+        }
+
+
+
+        void main() {
+            vec2 v = vUv;
+            v = v*scale-vec2(orX, orY);
+
+            v *= pow( 0.7, 5.0 + 13.*(1.+zoom));
+
+            float f = distanceEstimatorMandelbrot(v);      //f(z) = z ^ 2 + k
+        
+            vec3 col;
+            float d = clamp( pow(4.0*f,0.0998),0., 1.);
+            col = spectralGems(d);
+
+            gl_FragColor = vec4(vec3((1.-t)*palette(d) + t * col),1.);
+        }
+ </script>
+
+  <script src="../dist/mandelbrot-set.bundle.js"></script> <!-- Use in production -->
+  <!-- <script src="http://localhost:9001/dist/mandelbrot-set.bundle.js"></script> --> <!-- Use in development -->
+</body>
+
+</html>
