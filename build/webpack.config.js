@@ -5,6 +5,7 @@ module.exports = {
   entry: {
     "mandelbrot-set": path.resolve('../01-mandelbrot-set/js/entry.js'),
     "mandelbulb": path.resolve('../02-mandelbulb/js/entry.js'),
+    "diffusion": path.resolve('../03-diffusion/js/entry.js'),
   },
   devtool: 'inline-source-map',
   devServer: {

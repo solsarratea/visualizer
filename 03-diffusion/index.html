@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>03 - Difussion </title><meta charset="utf-8">
+  <title>Diffusion Visualizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+
+  <meta name="description" content="visualizing shaders with three.js experiment">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      border: 0;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .github-link {
+      top: 20px;
+      right: 20px;
+      color:  rgb(245, 245, 245);
+      text-decoration: none;
+      transition: all .2s ease-in-out;
+
+    }
+
+    .github-link .fab {
+      font-size: 38px; 
+      display: inline-block; 
+      vertical-align: middle;
+      padding: .2em .5em;
+    }
+    .github-link .text { 
+      color: 'white';
+      display: none;
+      font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+      font-size: 16px;
+      
+    }
+
+    .github-link:hover .text { 
+      display: inline-block; 
+    }
+
+    .github-link:hover .fab {
+      color: rgb(245, 245, 245);
+    }
+  </style>
+</head>
+
+<body>
+  <a href="https://github.com/solsarratea/learn-three" class="github-link" title="View source on Github" >
+    <span class="fab fa-github"></span>
+    <span class="text">View source</span>
+  </a>
+  <script id="fragShader" type="x-shader/x-fragment">
+    uniform vec2 resolution;
+	  uniform sampler2D texture;
+	  uniform vec3 smokeSource;
+	  uniform vec3 colorA;
+	  uniform vec3 colorB;
+	  uniform float sizeBrush;
+
+      void main() {
+		vec2 pixel = gl_FragCoord.xy / resolution.xy;
+		gl_FragColor = texture2D( texture, pixel );
+
+		
+		float dist = distance(smokeSource.xy, gl_FragCoord.xy);
+		
+		/////////////////////////////////////////////////////
+		gl_FragColor.rgb +=  smokeSource.z *0.5* max(sizeBrush-dist,0.0) * colorA;
+
+		gl_FragColor.b -= smokeSource.z *gl_FragColor.b / 200. *colorA.r;
+		gl_FragColor.r -= smokeSource.z *gl_FragColor.r / 200. *colorA.g;
+		gl_FragColor.g -= smokeSource.z *gl_FragColor.g / 200. *colorA.b;
+
+		gl_FragColor.rgb += smokeSource.z *0.5* max(sizeBrush-dist,0.0)* colorB;
+
+
+		//Smoke diffuse
+		float xPixel = 1.0/resolution.x;
+		float yPixel = 1.0/resolution.y;
+
+		vec4 rightColor = texture2D(texture,vec2(pixel.x+xPixel,pixel.y));
+		vec4 leftColor = texture2D(texture,vec2(pixel.x-xPixel,pixel.y));
+		vec4 upColor = texture2D(texture,vec2(pixel.x,pixel.y+yPixel));
+		vec4 downColor = texture2D(texture,vec2(pixel.x,pixel.y-yPixel));
+
+		if(pixel.y <= yPixel){
+			downColor = vec4(0.);
+		}
+
+		///////////////////////////////////////////////////////////////
+		float factor = 7.0 * 0.016 * (leftColor.r + rightColor.r + downColor.r * 3.0 + upColor.r - 6.0 * gl_FragColor.r);
+	 
+	
+		float minimum = 0.003;
+		if(factor >= -minimum && factor < 0.0) factor = -minimum;
+		gl_FragColor.rgb += factor;
+		
+
+
+	 }
+    </script>
+  <body> 
+ 
+  </script>
+  <script src="../dist/diffusion.bundle.js"></script> <!-- Use in production -->
+  <!-- <script src="http://localhost:9001/dist/diffusion.bundle.js"></script> --> <!-- Use in development -->
+</body>
+
+</html>
