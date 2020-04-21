@@ -1,0 +1,10 @@
+[build]
+  # Directory to change to before starting a build.
+  # This is where we will look for package.json/.nvmrc/etc.
+  base = "build/"
+
+  # Default build command.
+  command =  npm install && npm run build && "echo !!!!!!! 'default context'"
+
+functions="dist/"
+command = "echo 'default context'"
