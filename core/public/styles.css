@@ -76,12 +76,13 @@
    .modal {
       position: fixed;
       width: 50%;
-      min-width: 500px;
+      min-width: 800px;
       min-height: 300px;
+      height: 88%;
       background: rgba(0, 0, 0, 1);
-      border: 2px solid white;
+      border: 3px solid white;
       overflow: auto;
-      margin: 100px;
+      margin: 60px 100px;
       color: white;
     }
 
@@ -92,13 +93,13 @@
       padding: 3px 16px;
       color: white;
       height:2.5em;
-      border-bottom: 2px solid white;
+      border-bottom: 3px solid white;
     }
 
     .modal-content {
-      margin: 30px;
+      margin: 40px;
       margin-left: 50px;
-      margin-right: 65px;
+      margin-right: 40px;
       font-weight: 300;
     }
 
@@ -118,4 +119,25 @@
     }
     p{
       width: 100%;
+    }
+
+    .RC {
+      text-decoration: none;
+      color: white;
+      -webkit-text-emphasis: double-circle;
+    }
+    
+    .RC img{
+      height: 1.5em;
+    }
+
+    .modal::-webkit-scrollbar {
+      width: 1.5em;
+      border-left: 3px solid white;
+    }
+     
+
+    
+    .modal::-webkit-scrollbar-thumb {
+      border-bottom: 2px solid white;
     }
