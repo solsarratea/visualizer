@@ -1,0 +1,121 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    border: 0;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  canvas {
+    display: block;
+  }
+
+  .info {
+    top: 20px;
+    right: 20px;
+    color:  rgb(245, 245, 245);
+    text-decoration: none;
+    transition: all .2s ease-in-out;
+
+  }
+
+  .info .fab {
+    font-size: 38px; 
+    display: inline-block; 
+    vertical-align: middle;
+    padding: .2em .5em;
+    cursor: pointer;
+  }
+
+  .info .text { 
+    color: 'white';
+    display: none;
+    font-size: 16px;
+  }
+
+  .info:hover .text { 
+    display: inline-block; 
+  }
+
+  .info:hover .fab {
+    color: rgb(245, 245, 245);
+  }
+
+  .dg li.save-row {
+      color: white !important;
+      background:black !important;
+      width: 280px !important;
+    }
+   
+   span{
+     background:black !important;
+     box-shadow: 0 0 black !important;
+   }
+
+   select{
+     color: white;
+   }
+   .dg li.save-row .button.gears {
+    padding: 0.8em 1em;
+    background: black url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAANCAYAAAB/9ZQ7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAQJJREFUeNpiYKAU/P//PwGIC/ApCABiBSAW+I8AClAcgKxQ4T9hoMAEUrxx2QSGN6+egDX+/vWT4e7N82AMYoPAx/evwWoYoSYbACX2s7KxCxzcsezDh3evFoDEBYTEEqycggWAzA9AuUSQQgeYPa9fPv6/YWm/Acx5IPb7ty/fw+QZblw67vDs8R0YHyQhgObx+yAJkBqmG5dPPDh1aPOGR/eugW0G4vlIoTIfyFcA+QekhhHJhPdQxbiAIguMBTQZrPD7108M6roWYDFQiIAAv6Aow/1bFwXgis+f2LUAynwoIaNcz8XNx3Dl7MEJUDGQpx9gtQ8YCueB+D26OECAAQDadt7e46D42QAAAABJRU5ErkJggg==) 2px 1px no-repeat !important;
+   }
+
+   p {
+     padding:.5em 0;
+   }
+
+   h4 {
+     margin-bottom: 30px;
+   }
+   .footer{
+    margin-top: 3em;
+    font-size: 14px;
+   }
+
+   .modal {
+      position: fixed;
+      width: 50%;
+      min-width: 500px;
+      min-height: 300px;
+      background: rgba(0, 0, 0, 1);
+      border: 2px solid white;
+      overflow: auto;
+      margin: 100px;
+      color: white;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 16px;
+      color: white;
+      height:2.5em;
+      border-bottom: 2px solid white;
+    }
+
+    .modal-content {
+      margin: 30px;
+      margin-left: 50px;
+      margin-right: 65px;
+      font-weight: 300;
+    }
+
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    p{
+      width: 100%;
+    }

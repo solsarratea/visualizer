@@ -12,71 +12,43 @@
   <meta name="description" content="visualizing shaders with three.js experiment">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      background-color: black;
-      border: 0;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    .github-link {
-      top: 20px;
-      right: 20px;
-      color:  rgb(245, 245, 245);
-      text-decoration: none;
-      transition: all .2s ease-in-out;
-
-    }
-
-    .github-link .fab {
-      font-size: 38px; 
-      display: inline-block; 
-      vertical-align: middle;
-      padding: .2em .5em;
-    }
-    .github-link .text { 
-      color: 'white';
-      display: none;
-      font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
-      font-size: 16px;
-      
-    }
-
-    .github-link:hover .text { 
-      display: inline-block; 
-    }
-
-    .github-link:hover .fab {
-      color: rgb(245, 245, 245);
-    }
-    .dg li.save-row {
-        color: white !important;
-        background:black !important;
-      }
-     
-     select{
-       color: white;
-     }
-     span{
-       background:black !important;
-       box-shadow: 0 0 black !important;
-     }
-     .dg li.save-row .button.gears {
-      padding: 0.8em 1em;
-      background: black url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAANCAYAAAB/9ZQ7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAQJJREFUeNpiYKAU/P//PwGIC/ApCABiBSAW+I8AClAcgKxQ4T9hoMAEUrxx2QSGN6+egDX+/vWT4e7N82AMYoPAx/evwWoYoSYbACX2s7KxCxzcsezDh3evFoDEBYTEEqycggWAzA9AuUSQQgeYPa9fPv6/YWm/Acx5IPb7ty/fw+QZblw67vDs8R0YHyQhgObx+yAJkBqmG5dPPDh1aPOGR/eugW0G4vlIoTIfyFcA+QekhhHJhPdQxbiAIguMBTQZrPD7108M6roWYDFQiIAAv6Aow/1bFwXgis+f2LUAynwoIaNcz8XNx3Dl7MEJUDGQpx9gtQ8YCueB+D26OECAAQDadt7e46D42QAAAABJRU5ErkJggg==) 2px 1px no-repeat !important;
-     }
-  </style>
+  <link href="/core/styles.css" rel="stylesheet">
 </head>
-
 <body>
-  <a href="https://github.com/solsarratea/learn-three" class="github-link" title="View source on Github" >
+  <a id="btn" class="info">
+    <span class="fab fas fa-info-circle info"></span> 
+  </a>
+  <div id="showInfo" class="modal">
+    <div class="modal-header">
+      <p>GRAY SCOTT MODEL</p>
+      <span class="close">&times;
+      </span>
+    </div>
+    <div class="modal-content">
+      <h4>
+        This is an implementation  of <a href="https://en.wikipedia.org/wiki/Reaction%E2%80%93diffusion_system"> reaction diffusion systems</a> on Three.js and WebGL that allows pattern formation in video capture.
+      </h4>
+       <p>On the right side: Open Controls</p> 
+       <p> First line dropdown has a series of presets.</p>
+       <p> Sliders above will allow you to change the following parameters:</p>
+       <p>- colors </p> 
+       <p>- interpolation: mixing amount with video texture</p> 
+       <p>- dA: rate of difussion of substance A</p>
+       <p>- dB: rate of diffusion of substance B</p>
+       <p>- feed: rate of feed &emsp;&emsp;//////////////////////////////</p>
+       <p>- kill: rate of kill &emsp;&emsp;////////suggestion: get these values <a href="http://mrob.com/pub/comp/xmorphia/index.html"> from here</a></p>
+       <p>- timeStep: time lapse within each frame</p>
+       <p>- iterations: number of times the GS algorithm is applied at each frame</p>
+       <p>- zoom, centerX, centerY: sacle and move position of pattern;</p>
+       <p>- Brushable: turn on/off brush</p>
+       <p>- brushSize: radius of brush</p>
+       <p class="footer"> This is a still WIP for any comments drop me at <a href="contact@solquemal.com">contact@solquemal.com</a></p>
+    
+    </div>
+  
+  </div>
+  </div>
+  <a href="https://github.com/solsarratea/visualizer/tree/master/04-gray-scott" class="info" title="View source on Github" >
     <span class="fab fa-github"></span>
     <span class="text">View source</span>
   </a>
@@ -91,51 +63,50 @@
                            modelViewMatrix * 
                            vec4(position,1.0);
        }
-     </script>
-   
-       <script type="x-shader/x-fragment" id="colorize">
-           uniform vec2 resolution;
-           uniform sampler2D texture;
-           uniform sampler2D video;
-           uniform vec3 color1;
-           uniform vec3 color2;
-           uniform vec3 color3;
-   
-           float map(float value, float inMin, float inMax, float outMin, float outMax) {
-                 return outMin + (outMax - outMin) * (value - inMin) / (inMax - inMin);
-           }
-   
-           void main(void)
-           {
-               vec2 uv = (gl_FragCoord.xy / resolution); 
-               
-               vec3 black = vec3(0.0, 0.0, 0.0);
-               vec3 targetColor = vec3(0.0, 0.0, 0.0);
-               float sourceRamp = texture2D( texture, uv ).g * 3.0;
-              // vec3 v = texture2D(video, uv).rgb;
-   
-               if (sourceRamp < 0.1) 
-               {
-                   // targetColor = black;
-   
-                   float ramp = map(sourceRamp, 0.0, 0.1, 0.0, 1.0);
-                   targetColor = mix( black, color3, min( ramp, 1.0 ) );
-               }
-               else if (sourceRamp < 0.45) 
-               {
-                   float ramp = map(sourceRamp, 0.1, 0.45, 0.0, 1.0);
-                   targetColor = mix( color3, color2, min( ramp, 1.0 ) );
-               }
-               else
-               {
-                   float ramp = map(sourceRamp, 0.45, 1.0, 0.0, 1.0);
-                   targetColor = mix( color2, color1, min( ramp, 1.0 ) );
-               }
-               
-               gl_FragColor = vec4(targetColor, .6);
-           }  
-     </script>
-       <script type="x-shader/x-fragment" id="fragShader">
+    </script>
+    <script type="x-shader/x-fragment" id="colorize">
+        uniform vec2 resolution;
+        uniform sampler2D texture;
+        uniform sampler2D video;
+        uniform vec3 color1;
+        uniform vec3 color2;
+        uniform vec3 color3;
+
+        float map(float value, float inMin, float inMax, float outMin, float outMax) {
+              return outMin + (outMax - outMin) * (value - inMin) / (inMax - inMin);
+        }
+
+        void main(void)
+        {
+            vec2 uv = (gl_FragCoord.xy / resolution); 
+            
+            vec3 black = vec3(0.0, 0.0, 0.0);
+            vec3 targetColor = vec3(0.0, 0.0, 0.0);
+            float sourceRamp = texture2D( texture, uv ).g * 3.0;
+          // vec3 v = texture2D(video, uv).rgb;
+
+            if (sourceRamp < 0.1) 
+            {
+                // targetColor = black;
+
+                float ramp = map(sourceRamp, 0.0, 0.1, 0.0, 1.0);
+                targetColor = mix( black, color3, min( ramp, 1.0 ) );
+            }
+            else if (sourceRamp < 0.45) 
+            {
+                float ramp = map(sourceRamp, 0.1, 0.45, 0.0, 1.0);
+                targetColor = mix( color3, color2, min( ramp, 1.0 ) );
+            }
+            else
+            {
+                float ramp = map(sourceRamp, 0.45, 1.0, 0.0, 1.0);
+                targetColor = mix( color2, color1, min( ramp, 1.0 ) );
+            }
+            
+            gl_FragColor = vec4(targetColor, .6);
+        }  
+    </script>
+    <script type="x-shader/x-fragment" id="fragShader">
        uniform vec2 res;
        uniform sampler2D bufferTexture;
        uniform sampler2D start;
@@ -148,8 +119,8 @@
        uniform float k;
        uniform float zoom;
        uniform float rotate;
-       uniform float centroX;
-       uniform float centroY;
+       uniform float centerX;
+       uniform float centerY;
    
        uniform float brushSize;
        uniform float flow;
@@ -177,16 +148,16 @@
    
        void main() 
        {
-           vec2 centro = vec2(centroX,centroY);
+           vec2 center = vec2(centerX,centerY);
            // load current values for a and b
            if (clear==1) {
                gl_FragColor = vec4(0.);
                return;
            }
    
-           vec2 pixel = (1. - 0.03*zoom) * (gl_FragCoord.xy - centro) + centro;
+           vec2 pixel = (1. - 0.03*zoom) * (gl_FragCoord.xy - center) + center;
    
-           pixel = rotateP(pixel, centro, rotate * 0.);
+           pixel = rotateP(pixel, center, rotate * 0.);
            
            vec4 currentColor = texture2D(bufferTexture, (pixel/ res.xy));
            vec4 videoColor= texture2D(start, pixel/ res.xy);
@@ -257,9 +228,8 @@
        }
    
      </script>
-
+     <script src="/core/js/index-controls.js"></script>
   <script src="../dist/gsvideo.bundle.js"></script> <!-- Use in production -->
   <!-- <script src="http://localhost:9001/dist/gsvideo.bundle.js"></script> --> <!-- Use in development -->
 </body>
-
 </html>

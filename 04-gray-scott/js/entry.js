@@ -22,14 +22,14 @@ window.guiData = {
         "dB": 0.421,
         "timeStep": 0.003,
         "feed": 0.0078000000000000005,
-        "k": 0.051000000000000004,
+        "kill": 0.051000000000000004,
         "flow": 1,
         "brushSize": 142.9454699407282,
         "zoom": 0.001473,
         "rotate": 0,
         "iterations": 1,
-        "centroX": 925,
-        "centroY": 490.5,
+        "centerX": 925,
+        "centerY": 490.5,
         "interpolate": 0.00413
       }
     },
@@ -54,14 +54,14 @@ window.guiData = {
         "dB": 0.497,
         "timeStep": 0.0041,
         "feed": 0.006,
-        "k": 0.0257,
+        "kill": 0.0257,
         "flow": 1,
         "brushSize": 30,
         "zoom": 0.005809,
         "rotate": -0.007188,
         "iterations": 4,
-        "centroX": 918.5774767146486,
-        "centroY": 433.93259949195595
+        "centerX": 918.5774767146486,
+        "centerY": 433.93259949195595
       }
     },
     "worms": {
@@ -85,14 +85,14 @@ window.guiData = {
         "dB": 0.15,
         "timeStep": 0.002,
         "feed": 0.034,
-        "k": 0.063,
+        "kill": 0.063,
         "flow": 1,
         "brushSize": 30,
         "zoom": 0,
         "rotate": 0,
         "iterations": 4,
-        "centroX": 1326,
-        "centroY": 274.44741744284505
+        "centerX": 1326,
+        "centerY": 274.44741744284505
       }
     },
     "bonito": {
@@ -116,12 +116,12 @@ window.guiData = {
         "dB": 0.20400000000000001,
         "timeStep": 0.0204,
         "feed": 0.006,
-        "k": 0.0257,
+        "kill": 0.0257,
         "flow": 1,
         "brushSize": 30,
         "iterations": 1,
-        "centroX": 820.0169348010162,
-        "centroY": 518.9913632514819
+        "centerX": 820.0169348010162,
+        "centerY": 518.9913632514819
       }
     },
     "cells": {
@@ -145,7 +145,7 @@ window.guiData = {
         "dB": 0.171,
         "timeStep": 0.01,
         "feed": 0.106,
-        "k": 0.055,
+        "kill": 0.055,
         "flow": 1,
         "brushSize": 30,
         "iterations": 1
@@ -172,7 +172,7 @@ window.guiData = {
         "dB": 0.161,
         "timeStep": 0.01,
         "feed": 0.006,
-        "k": 0.037000000000000005,
+        "kill": 0.037000000000000005,
         "flow": 1,
         "brushSize": 40.955361251725726,
         "iterations": 1
@@ -199,7 +199,7 @@ window.guiData = {
         "dB": 0.096,
         "timeStep": 0.0529,
         "feed": 0.006,
-        "k": 0.0257,
+        "kill": 0.0257,
         "flow": 1,
         "brushSize": 100,
         "iterations": 1
@@ -226,7 +226,7 @@ window.guiData = {
         "dB": 0.182,
         "timeStep": 0.005200000000000001,
         "feed": 0.006,
-        "k": 0.0257,
+        "kill": 0.0257,
         "flow": 1,
         "brushSize": 30,
         "iterations": 1,
@@ -254,7 +254,7 @@ window.guiData = {
         "dB": 0.161,
         "timeStep": 0.01,
         "feed": 0.006,
-        "k": 0.037000000000000005,
+        "kill": 0.037000000000000005,
         "flow": 1,
         "brushSize": 30,
         "iterations": 1,
@@ -282,14 +282,14 @@ window.guiData = {
         "dB": 0.139,
         "timeStep": 0.0529,
         "feed": 0.006,
-        "k": 0.0257,
+        "kill": 0.0257,
         "flow": 1,
         "brushSize": 100,
         "zoom": 0,
         "rotate": 0,
         "iterations": 1,
-        "centroX": 998.7806943268417,
-        "centroY": 497.7266723116003
+        "centerX": 998.7806943268417,
+        "centerY": 497.7266723116003
       }
     },
     "palms": {
@@ -313,14 +313,14 @@ window.guiData = {
         "dB": 0.15,
         "timeStep": 0.0106,
         "feed": 0.09000000000000001,
-        "k": 0.059000000000000004,
+        "kill": 0.059000000000000004,
         "flow": 1,
         "brushSize": 30,
         "zoom": 0,
         "rotate": 0.001473,
         "iterations": 1,
-        "centroX": 858.4250635055039,
-        "centroY": 455.1972904318375
+        "centerX": 858.4250635055039,
+        "centerY": 455.1972904318375
       }
     },
     "pez amarillo": {
@@ -344,14 +344,14 @@ window.guiData = {
         "dB": 0.215,
         "timeStep": 0.002,
         "feed": 0.034,
-        "k": 0.063,
+        "kill": 0.063,
         "flow": 1,
         "brushSize": 112.75004233700254,
         "zoom": -0.000694,
         "rotate": 0,
         "iterations": 2,
-        "centroX": 746.3105842506351,
-        "centroY": 593.4177815410669,
+        "centerX": 746.3105842506351,
+        "centerY": 593.4177815410669,
         "interpolate": 0.0213
       }
     },
@@ -376,14 +376,14 @@ window.guiData = {
         "dB": 0.421,
         "timeStep": 0.002,
         "feed": 0.034,
-        "k": 0.063,
+        "kill": 0.063,
         "flow": 1,
         "brushSize": 112.75004233700254,
         "zoom": -0.000694,
         "rotate": 0,
         "iterations": 2,
-        "centroX": 746.3105842506351,
-        "centroY": 593.4177815410669,
+        "centerX": 746.3105842506351,
+        "centerY": 593.4177815410669,
         "interpolate": 0.0256
       }
     }
@@ -517,7 +517,7 @@ function setupMainScene()
 window.dA = .2;
 window.dB = 0.2;
 window.feed = 0.031;
-window.k = 0.057;
+window.kill = 0.057;
 window.brushSize = 1;
 window.clear = 0;
 window.iterations = 1;
@@ -526,8 +526,8 @@ window.timeStep = 0.01;
 window.brush = new Brush();
 window.zoom = 0.;
 window.rotate = 0.;
-window.centroX = window.innerWidth/2.;
-window.centroY = window.innerHeight/2.;
+window.centerX = window.innerWidth/2.;
+window.centerY = window.innerHeight/2.;
 window.interpolate = 0;
   
   
@@ -563,7 +563,7 @@ function initBufferScene(){
         dA: {type:'f', value:dA},
         dB: {type:'f', value:dB},
         feed: {type:'f', value:feed},
-        k: {type:'f', value:k},
+        k: {type:'f', value:kill},
         brushSize: {type:'f', value:brushSize},
         clear: {type:'i', value:clear},
         enableBrush: {type:'i', value: 0},
@@ -572,8 +572,8 @@ function initBufferScene(){
         diff2:  {type:'f', value: 0.05*flow},
         zoom:  {type:'f', value: zoom},
         rotate:  {type:'f', value: rotate},
-        centroX:  {type:'f', value: centroX},
-        centroY:  {type:'f', value: centroY},
+        centerX:  {type:'f', value: centerX},
+        centerY:  {type:'f', value: centerY},
         t:  {type:'f', value: interpolate},
         
 
@@ -625,22 +625,19 @@ function addGuiControls(){
       gui.addColor(this, "color1");
       gui.addColor(this, "color2");
       gui.addColor(this, "color3");
+      gui.add(this, "interpolate",0.,0.2).step(0.0001);
       gui.add(this, "dA", 0.0, 1.0).step(0.001);
       gui.add(this, "dB", 0.0, 1.0).step(0.001);
-      gui.add(this, "timeStep", 0.0, 0.1).step(0.0001);
       gui.add(this, "feed", 0.0, 0.15).step(0.0001);
-      gui.add(this, "k", 0.0, 0.15).step(0.0001);
-      gui.add(this, "flow", 1.0, 1.01);
-      gui.add(this, "brushSize", 1, 200);
+      gui.add(this, "kill", 0.0, 0.15).step(0.0001);
+      gui.add(this, "timeStep", 0.0, 0.1).step(0.0001);
+      gui.add(this, "iterations", 0, 100).step(1);
       gui.add(this, "zoom", -0.1, 0.1).step(0.000001);
       gui.add(this, "rotate", -0.1, 0.1).step(0.000001);
-      gui.add(this, "iterations", 0, 100).step(1);
-      gui.add(this, "loadScreen");
+      gui.add(this, "centerX",0,window.innerWidth);
+      gui.add(this, "centerY",0,window.innerHeight);
       gui.add(this, "Brushable");
-      gui.add(this, "centroX",0,window.innerWidth);
-      gui.add(this, "centroY",0,window.innerHeight);
-      gui.add(this, "interpolate",0.,0.2).step(0.0001);
-      gui.close();
+      gui.add(this, "brushSize", 1, 200);
 }
 addGuiControls();
   
@@ -680,14 +677,14 @@ function render() {
     bufferMaterial.uniforms.dA.value = dA;
     bufferMaterial.uniforms.dB.value = dB;
     bufferMaterial.uniforms.feed.value = feed;
-    bufferMaterial.uniforms.k.value = k;
+    bufferMaterial.uniforms.k.value = kill;
     bufferMaterial.uniforms.brushSize.value = brushSize;
     bufferMaterial.uniforms.clear.value = clear;
     bufferMaterial.uniforms.enableBrush.value = brush.enable;
     bufferMaterial.uniforms.flow.value = flow;
     bufferMaterial.uniforms.rotate.value = rotate;
-    bufferMaterial.uniforms.centroX.value = centroX;
-    bufferMaterial.uniforms.centroY.value = centroY;
+    bufferMaterial.uniforms.centerX.value = centerX;
+    bufferMaterial.uniforms.centerY.value = centerY;
     bufferMaterial.uniforms.t.value = interpolate;
 
     finalMaterial.uniforms.color1.value.r = color1.r/255;
