@@ -529,6 +529,8 @@ window.rotate = 0.;
 window.centerX = window.innerWidth/2.;
 window.centerY = window.innerHeight/2.;
 window.interpolate = 0;
+window.tNeighbour = 0.;
+window.rNeighbour  = 1.;
   
   
 var bufferScene, textureA,textureB, initText;
@@ -575,6 +577,8 @@ function initBufferScene(){
         centerX:  {type:'f', value: centerX},
         centerY:  {type:'f', value: centerY},
         t:  {type:'f', value: interpolate},
+        tNeighbour:  {type:'f', value: tNeighbour},
+        rNeighbour:  {type:'f', value: rNeighbour},
         
 
     },
@@ -602,7 +606,7 @@ function initFinalScene(){
       color2 : { type : 'c', value : color2 },
       color3 : { type : 'c', value : color3 }
   },
-    fragmentShader : document.getElementById( 'colorize' ).textContent
+    fragmentShader : document.getElementById( 'color' ).textContent
   } );
 
   geom = new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight);
@@ -638,6 +642,8 @@ function addGuiControls(){
       gui.add(this, "centerY",0,window.innerHeight);
       gui.add(this, "Brushable");
       gui.add(this, "brushSize", 1, 200);
+      gui.add(this, "rNeighbour", 0.0, 10.0).step(0.1);
+      gui.add(this, "tNeighbour", -rNeighbour, rNeighbour).step(0.5);
 }
 addGuiControls();
   
@@ -686,6 +692,8 @@ function render() {
     bufferMaterial.uniforms.centerX.value = centerX;
     bufferMaterial.uniforms.centerY.value = centerY;
     bufferMaterial.uniforms.t.value = interpolate;
+    bufferMaterial.uniforms.rNeighbour.value = rNeighbour;
+    bufferMaterial.uniforms.tNeighbour.value = tNeighbour;
 
     finalMaterial.uniforms.color1.value.r = color1.r/255;
     finalMaterial.uniforms.color1.value.g = color1.g/255;

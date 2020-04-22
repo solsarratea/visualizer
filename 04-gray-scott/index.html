@@ -4,19 +4,22 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>04 - Gray Scott model </title><meta charset="utf-8">
+  <title>04 - Gray Scott model </title>
+  <meta charset="utf-8">
   <title>Gray Scott Visualizer</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
 
   <meta name="description" content="visualizing shaders with three.js experiment">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+    integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
   <link href="/core/styles.css" rel="stylesheet">
 </head>
+
 <body>
   <a id="btn" class="info">
-    <span class="fab fas fa-info-circle info"></span> 
+    <span class="fab fas fa-info-circle info"></span>
   </a>
   <div id="showInfo" class="modal">
     <div class="modal-header">
@@ -26,33 +29,39 @@
     </div>
     <div class="modal-content">
       <h4>
-        This is an implementation  of <a href="https://en.wikipedia.org/wiki/Reaction%E2%80%93diffusion_system"> reaction diffusion systems</a> on Three.js and WebGL that allows pattern formation in video capture.
+        This is an implementation of <a href="https://en.wikipedia.org/wiki/Reaction%E2%80%93diffusion_system"> reaction
+          diffusion systems</a> on Three.js and WebGL that allows pattern formation in video capture.
       </h4>
-       <p>On the right side: Open Controls</p> 
-       <p> First line dropdown has a series of presets.</p>
-       <p> Sliders above will allow you to change the following parameters:</p>
-       <p>- colors </p> 
-       <p>- interpolation: mixing amount with video texture</p> 
-       <p>- dA: rate of difussion of substance A</p>
-       <p>- dB: rate of diffusion of substance B</p>
-       <p>- feed: rate of feed &emsp;&emsp;//////////////////////////////</p>
-       <p>- kill: rate of kill &emsp;&emsp;////////suggestion: get these values <a href="http://mrob.com/pub/comp/xmorphia/index.html"> from here</a></p>
-       <p>- timeStep: time lapse within each frame</p>
-       <p>- iterations: number of times the GS algorithm is applied at each frame</p>
-       <p>- zoom, centerX, centerY: sacle and move position of pattern;</p>
-       <p>- Brushable: turn on/off brush</p>
-       <p>- brushSize: radius of brush</p>
-       <p class="footer"> This is a still WIP for any comments drop me at <a href="contact@solquemal.com">contact@solquemal.com</a></p>
-    
+      <p>On the right side: Open Controls</p>
+      <p> First line dropdown has a series of presets.</p>
+      <p> Sliders above will allow you to change the following parameters:</p>
+      <p>- colors </p>
+      <p>- interpolation: mixing amount with video texture</p>
+      <p>- feed: rate of feed &emsp;&emsp;//////////////////////////////</p>
+      <p>- kill: rate of kill &emsp;&emsp;////////suggestion: get these values <a href="http://mrob.com/pub/comp/xmorphia/index.html"> from here</a></p>
+      <p>- dA: rate of difussion of substance A</p>
+      <p>- dB: rate of diffusion of substance B</p>
+      <p>- rNeighbour: radius of diffusion. </p>
+      <p>- tNeighbour: translate local neighbourhood. Bounded by size of radius.</p>
+      <p>- timeStep: time lapse within each frame</p>
+      <p>- iterations: number of times the GS algorithm is applied at each frame</p>
+      <p>- zoom, rotate, centerX, centerY: scale, rotate and move position of pattern</p>
+      <p>- Brushable: turn on/off brush</p>
+      <p>- brushSize: radius of brush</p>
+      <p class="footer"> This is a still WIP for any comments drop me at <a
+          href="contact@solquemal.com">contact@solquemal.com</a></p>
+
     </div>
-  
+
   </div>
   </div>
-  <a href="https://github.com/solsarratea/visualizer/tree/master/04-gray-scott" class="info" title="View source on Github" >
+  <a href="https://github.com/solsarratea/visualizer/tree/master/04-gray-scott" class="info"
+    title="View source on Github">
     <span class="fab fa-github"></span>
     <span class="text">View source</span>
   </a>
-  <body> 
+
+  <body>
     <video id="video" autoplay="" style="display:none"></video>
     <script id="vertexShader" type="x-shader/x-vertex">
        varying vec2 texCoordVarying;
@@ -64,7 +73,7 @@
                            vec4(position,1.0);
        }
     </script>
-    <script type="x-shader/x-fragment" id="colorize">
+    <script type="x-shader/x-fragment" id="color">
         uniform vec2 resolution;
         uniform sampler2D texture;
         uniform sampler2D video;
@@ -131,6 +140,9 @@
        uniform float diff1;
        uniform float diff2;
        uniform float t;
+
+       uniform float tNeighbour;
+       uniform float rNeighbour;
    
        int count = 0;
    
@@ -155,12 +167,11 @@
                return;
            }
    
-           vec2 pixel = (1. - 0.03*zoom) * (gl_FragCoord.xy - center) + center;
-   
-           pixel = rotateP(pixel, center, rotate * 0.);
+           vec2 pixelT = (1. - 0.03*zoom) * (gl_FragCoord.xy - center) + center;
+           pixelT = rotateP(pixelT, center, rotate * 0.);
            
-           vec4 currentColor = texture2D(bufferTexture, (pixel/ res.xy));
-           vec4 videoColor= texture2D(start, pixel/ res.xy);
+           vec4 currentColor = texture2D(bufferTexture, (pixelT/ res.xy));
+           vec4 videoColor= texture2D(start, pixelT/ res.xy);
            
    
            float a = currentColor.r;
@@ -173,21 +184,24 @@
                    b += 0.5 * ratio * brush.z;
                }
            }
-          
-           float offset = 1.0;
+           
+           vec2 pixel = gl_FragCoord.xy/res.xy;
+           vec2 pixelSize = 1./res.xy;
+
+           vec2 dy = (rNeighbour * vec2(1.,-1.) + tNeighbour)*pixelSize.y; 
+           vec2 dx = (rNeighbour * vec2(1.,-1.) + tNeighbour)*pixelSize.x; 
+
+           vec4 N = texture2D(bufferTexture, vec2(pixel.x, pixel.y + dy.y));
+           vec4 S = texture2D(bufferTexture, vec2(pixel.x, pixel.y + dy.x));
+           vec4 E = texture2D(bufferTexture, vec2(pixel.x + dx.x, pixel.y));
+           vec4 W = texture2D(bufferTexture, vec2(pixel.x + dx.y, pixel.y));
    
-           // get pixels from surrounding grid
-           vec4 N = texture2D(bufferTexture, vec2(gl_FragCoord.x/res.x, gl_FragCoord.y/res.y - offset/res.y));
-           vec4 S = texture2D(bufferTexture, vec2(gl_FragCoord.x/res.x, gl_FragCoord.y/res.y + offset/res.y));
-           vec4 E = texture2D(bufferTexture, vec2(gl_FragCoord.x/res.x + offset/res.x, gl_FragCoord.y/res.y));
-           vec4 W = texture2D(bufferTexture, vec2(gl_FragCoord.x/res.x - offset/res.x, gl_FragCoord.y/res.y));
+           vec4 NE = texture2D(bufferTexture, vec2(pixel.x + dx.x, pixel.y + dy.x));
+           vec4 NW = texture2D(bufferTexture, vec2(pixel.x + dx.y, pixel.y + dy.x));
+           vec4 SE = texture2D(bufferTexture, vec2(pixel.x + dx.x, pixel.y + dy.y));
+           vec4 SW = texture2D(bufferTexture, vec2(pixel.x + dx.y, pixel.y + dy.y));
    
-           vec4 NE = texture2D(bufferTexture, vec2(gl_FragCoord.x/res.x + offset/res.x, gl_FragCoord.y/res.y + offset/res.y));
-           vec4 NW = texture2D(bufferTexture, vec2(gl_FragCoord.x/res.x - offset/res.x, gl_FragCoord.y/res.y + offset/res.y));
-           vec4 SE = texture2D(bufferTexture, vec2(gl_FragCoord.x/res.x + offset/res.x, gl_FragCoord.y/res.y - offset/res.y));
-           vec4 SW = texture2D(bufferTexture, vec2(gl_FragCoord.x/res.x - offset/res.x, gl_FragCoord.y/res.y - offset/res.y));
-   
-           // calculate laplace of A
+           // Lapalace A
            float lapA = 0.0;
            lapA += a * -1.0;
            lapA += N.r * diff1;
@@ -200,7 +214,7 @@
            lapA += SW.r * diff2;
    
    
-           // calculate laplace of B
+           // Laplace B
            float lapB = 0.0;
            lapB += b * -1.0;
            lapB += N.g * diff1;
@@ -228,8 +242,10 @@
        }
    
      </script>
-     <script src="/core/js/index-controls.js"></script>
-  <script src="../dist/gsvideo.bundle.js"></script> <!-- Use in production -->
-  <!-- <script src="http://localhost:9001/dist/gsvideo.bundle.js"></script> --> <!-- Use in development -->
-</body>
+    <script src="/core/js/index-controls.js"></script>
+    <script src="../dist/gsvideo.bundle.js"></script> <!-- Use in production -->
+    <!-- <script src="http://localhost:9001/dist/gsvideo.bundle.js"></script> -->
+    <!-- Use in development -->
+  </body>
+
 </html>
