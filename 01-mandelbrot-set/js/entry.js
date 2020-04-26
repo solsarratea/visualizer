@@ -1,100 +1,129 @@
-var width = window.innerWidth;
-var height = window.innerHeight;
-
-var camera = new THREE.PerspectiveCamera(45, width / height, 0.01, 1000);
-camera.position.y = 0;
-camera.position.z = 10;
-
-scene = new THREE.Scene();
-var geometry = new THREE.PlaneBufferGeometry(1,1);
-
-var startTime = Date.now();
-
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
-
-
-var gui = new dat.GUI();
-var guiData = {
-  "orX": 1.5, 
-  "orY": 1.3,
-  "scale": 2.7,
-  "zoom": -1.5,
-  "colorA": [65,52,170],
-  "colorB": [247,247,247],
-  "colorD": [162,73,73],
-  "colorC": [247,247,247],
-  "rainbowAmount": 1,
-};
-
-
-gui.addColor(guiData,'colorA');
-gui.addColor(guiData,'colorB');
-gui.addColor(guiData,'colorC');
-gui.addColor(guiData,'colorD');
-gui.add(guiData, 'rainbowAmount',0.,1.).step(0.0001);
-gui.close();
-
-var colorA = new THREE.Vector3( guiData.colorA[ 0 ], guiData.colorA[ 1 ], guiData.colorA[ 2 ] );
-var colorB = new THREE.Vector3( guiData.colorB[ 0 ], guiData.colorB[ 1 ], guiData.colorB[ 2 ] );
-var colorC = new THREE.Vector3( guiData.colorA[ 0 ], guiData.colorA[ 1 ], guiData.colorA[ 2 ] );
-var colorD = new THREE.Vector3( guiData.colorB[ 0 ], guiData.colorB[ 1 ], guiData.colorB[ 2 ] );
-
-
-material = new THREE.ShaderMaterial( {
-  uniforms: {
-    "time": { value: 0.0 },
-    "orX": { type: "f", value: guiData.orX },
-    "orY": { type: "f", value: guiData.orY },
-    "t": { type: "f", value: guiData.rainbowAmount },
-    "scale": { type: "f", value: guiData.scale },
-    "zoom": { type: "f", value: guiData.zoom },
-    "colorA" : { type : 'v3', value : colorA },
-    "colorB" : { type : 'v3', value : colorB },
-    "colorC" : { type : 'v3', value : colorC },
-    "colorD" : { type : 'v3', value : colorD },
-
-  },
-  fragmentShader: document.getElementById( 'mandelbrotFragmentShader' ).textContent,
-  vertexShader: document.getElementById( 'vertexShader' ).textContent,
-
-} );
-
-var plane = new THREE.Mesh( geometry, material );
-plane.scale.y = innerHeight*0.01;
-plane.scale.x = innerHeight*0.01;
-scene.add( plane );
-
-//Add Controls
-var domEvents	= new THREEx.DomEvents(camera, renderer.domElement);
-var controls = new THREE.OrbitControls(camera, renderer.domElement);  
-controls.enableRotate = false;
-var dragControls = new THREE.DragControls( [plane], camera, renderer.domElement );
+var camera, renderer,scene, domEevents,controls,dragControls;
+function setupScene(){
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth/ window.innerHeight, 0.01, 1000);
+  camera.position.y = 0;
+  camera.position.z = 10;
+  scene = new THREE.Scene();
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+  
+  domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableRotate = false;
+  controls.minDistance = 0.025;
+  controls.maxDistance = 44;
+  window.controls = controls;
+}
 
 
 function onWindowResize() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
-  }
+  camera.aspect = window.innerWidth/ window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
 
-function animate() {
+
+var geometry, materials, plane;
+function initScene(){
+  geometry = new THREE.PlaneBufferGeometry(1.3, 1);
   
+  material = new THREE.ShaderMaterial({
+    uniforms: {
+      "time": { value: 0.0 },
+      "orX": { type: "f", value: guiData.orX },
+      "orY": { type: "f", value: guiData.orY },
+      "t": { type: "f", value: guiData.rainbowAmount },
+      "scale": { type: "f", value: guiData.scale },
+      "zoom": { type: "f", value: guiData.zoom },
+      "colorA": { type: 'v3', value: colorA },
+      "colorB": { type: 'v3', value: colorB },
+      "colorC": { type: 'v3', value: colorC },
+      "colorD": { type: 'v3', value: colorD },
+      "colorD": { type: 'v3', value: colorD },
+      "iterations": { type: "f", value: guiData.scapeRadius },
+  
+      
+    },
+    fragmentShader: document.getElementById('mandelbrotFragmentShader').textContent,
+    vertexShader: document.getElementById('vertexShader').textContent,
+    
+  });
+  plane = new THREE.Mesh(geometry, material);
+  scene.add(plane);
+  dragControls = new THREE.DragControls([plane], camera, renderer.domElement);
+}
 
-    var time = performance.now() * 0.0005;
-    material.uniforms[ "time" ].value = time;
-    material.uniforms[ "colorA" ].value = guiData.colorA;
-    material.uniforms[ "colorB" ].value = guiData.colorB;
-    material.uniforms[ "colorC" ].value = guiData.colorC;
-    material.uniforms[ "colorD" ].value = guiData.colorD;
-    material.uniforms[ "t" ].value = guiData.rainbowAmount;
 
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-  } 
+window.guiData = {
+  "orX": 0.,
+  "orY": 0.,
+  "scale": 0.69,
+  "zoom": -1.5,
+  "colorA": [65, 52, 170],
+  "colorB": [247, 247, 247],
+  "colorD": [162, 73, 73],
+  "colorC": [247, 247, 247],
+  "rainbowAmount": 1,
+  "scapeRadius": 2.,
+  "zoom": 0.,
+  "iterations":100,
+};
+
+window.colorA = new THREE.Color(65,52,170);
+window.colorB = new THREE.Color(56,145,87);
+window.colorC = new THREE.Color(162,73,63);
+window.colorD = new THREE.Color(247,247,247);
+window.rainbowAmount = 1;
+window.scapeRadius = 2.;
+window.zoom = -1.5;
+window.iterations = 100;
+window.orX=0.;
+window.orY=0.;
+window.scale=0.69;
+
+var gui, zoomF, colorF;
+function  addGuiControls(){
+    gui = new dat.GUI({load: guiData});
+    zoomF = gui.addFolder("Zoom");
+    colorF = gui.addFolder("Colorize")
+      gui.remember(this);
+      colorF.addColor(this, 'colorA');
+      colorF.addColor(this, 'colorB');
+      colorF.addColor(this, 'colorC');
+      colorF.addColor(this, 'colorD');
+      gui.add(this, 'scapeRadius', -.5, 3.).step(0.01);
+      gui.add(this, 'iterations', 10, 300).step(0.1);
+      colorF.add(this, 'rainbowAmount', 0., 1.).step(0.0001);
+      zoomF.add(this, 'zoom', -1.5, 100.).step(1);
+      zoomF.add(this, 'orX', -200., 100.).step(0.0001);
+      zoomF.add(this, 'orY', -200., 100.).step(0.0001);
+}      
+
+
+function render() {
+  var time = performance.now() * 0.0005;
+  material.uniforms["time"].value = time;
+  material.uniforms["colorA"].value = colorA;
+  material.uniforms["colorB"].value = colorB;
+  material.uniforms["colorC"].value = colorC;
+  material.uniforms["colorD"].value = colorD;
+  material.uniforms.iterations.value = scapeRadius;
+  material.uniforms["t"].value = rainbowAmount;
+  material.uniforms["orX"].value = orX/(zoom+2.5);
+  material.uniforms["orY"].value = orY/(zoom+2.5);
+  material.uniforms["scale"].value = scale;
+  material.uniforms["zoom"].value = zoom;
+  plane.scale.x = window.innerHeight * 0.01 * 1 / 1.2;
+  plane.scale.y = window.innerHeight * 0.01;
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
+}
 
 window.addEventListener('resize', onWindowResize, false);
-animate();
+
+setupScene();
+initScene();
+render();
+addGuiControls();

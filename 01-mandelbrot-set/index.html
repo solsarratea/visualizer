@@ -10,60 +10,56 @@
   <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
   <script src="https://threejs.org/examples/js/controls/DragControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
-  <script src="/core/threex.domevents.js"></script>
+  <script src="/core/js/threex.domevents.js"></script>
 
   <meta name="description" content="visualizing shaders with three.js experiment">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      background-color: black;
-      border: 0;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    .github-link {
-      top: 20px;
-      right: 20px;
-      color:  rgb(245, 245, 245);
-      text-decoration: none;
-      transition: all .2s ease-in-out;
-
-    }
-
-    .github-link .fab {
-      font-size: 38px; 
-      display: inline-block; 
-      vertical-align: middle;
-      padding: .2em .5em;
-    }
-    .github-link .text { 
-      color: 'white';
-      display: none;
-      font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
-      font-size: 16px;
-      
-    }
-
-    .github-link:hover .text { 
-      display: inline-block; 
-    }
-
-    .github-link:hover .fab {
-      color: rgb(245, 245, 245);
-    }
-  </style>
+  <link href="/core/public/styles.css" rel="stylesheet">
 </head>
-
 <body>
-  <a href="https://github.com/solsarratea/fractals-visualizer" class="github-link" title="View source on Github" >
+  <div class="top-bar">
+    <a id="btn" class="info">
+      <span class="fab fas fa-info-circle info"></span>
+    </a>
+    <div id="showInfo" class="modal">
+      <div class="modal-header">
+        <p>MANDELBROT SET</p>
+        <span class="close">&times;
+        </span>
+      </div>
+      <div class="modal-content">
+        <h4>
+          This is an implementation of <a href="https://solquemal.com/shaders/2020/03/23/fractals-2d.html"> the Mandelbrot set</a> on Three.js and WebGL that using a distance estimator function.
+        </h4>
+        <h3> Interactive Controls :  </h3>
+        <p> Combine them to explore the boundary
+          <p>- ZOOM : scroll in and out. </p>
+          <p>- DRAG:  click and move around.</p>
+          <p> Combine both to explore  the boundary. </p>
+          <p> ADVICE: To have extra precision use the Zoom Control Folder, explained below.</p>
+        </p>
+        <h3> Extra precision controls : on the right of the screen </h3>
+        <p> The following controls will be generating a new texture to be rendered on the canvas.</p>
+        <p>- scapeRadius: number of precision </p>
+        <p>- iterations: number of iteration of the distance estimator function</p>
+        <div class="folder">- ZOOM FOLDER: 
+            <p>Start increasing zoom value, and re-define de origin (choosing orX, orY). Once you set up the values, use interactive controls. </p>
+        </div>
+          <div class="folder">- COLORIZE FOLDER: 
+            <p>Default color rendering is Rainbow
+                <p>- colors: create pallete </p>
+                <p>- rainbowAmount: interpolates default color with pallete defined above</p>
+            </p>
+          </div>
+        <p class="footer">
+          <p><a href="https://www.recurse.com/" class="RC">
+            <img src="https://avatars0.githubusercontent.com/u/1085202?s=200&v=4"/>  Developed at Recurse Center </a></p>
+            This is a still WIP for any comments drop me at <a href="contact@solquemal.com">contact@solquemal.com</a></p>
+          </p>
+      </div>
+    </div>
+  <a href="https://github.com/solsarratea/visualizer/tree/master/01-mandelbrot-set" class="info" title="View source on Github" >
     <span class="fab fa-github"></span>
     <span class="text">View source</span>
   </a>
@@ -88,6 +84,7 @@
     uniform vec3 colorB;
     uniform vec3 colorC;
     uniform vec3 colorD;
+    uniform float iterations;
     uniform float t;
 
      vec3 bump3 (vec3 x) {
@@ -116,13 +113,13 @@
             vec2 z = vec2(0.);
             vec2 dz = vec2(0.); 
 
-            float m2 = 255.;
-            float dis = 1000.;
+            float m2 = 0.;
+            float dis = pow(10.,iterations);
             
         
-            for( int i=0; i<1000; i++ )
+            for( int i=0; i< 100; i++ )
             {
-                if( m2 > 1000.0) {  break; }
+                if( m2 >dis) {  break; }
 
                 dz = 2.0*vec2(z.x*dz.x-z.y*dz.y, z.x*dz.y + z.y*dz.x) + vec2(1.);
 
@@ -137,10 +134,13 @@
 
 
         void main() {
-            vec2 v = vUv;
-            v = v*scale-vec2(orX, orY);
+           vec2 v = vUv;
+           vec2 center = vec2(orX,orY);
 
-            v *= pow( 0.7, 5.0 + 13.*(1.+zoom));
+            v =  (4. - scale) * v -vec2(2.11,1.62);
+
+            v *= pow( 0.95, zoom);
+            v += center;
 
             float f = distanceEstimatorMandelbrot(v);      //f(z) = z ^ 2 + k
         
@@ -151,7 +151,7 @@
             gl_FragColor = vec4(vec3((1.-t)*palette(d) + t * col),1.);
         }
  </script>
-
+ <script src="/core/js/index-controls.js"></script>
   <script src="../dist/mandelbrot-set.bundle.js"></script> <!-- Use in production -->
   <!-- <script src="http://localhost:9001/dist/mandelbrot-set.bundle.js"></script> --> <!-- Use in development -->
 </body>

@@ -136,8 +136,14 @@
       border-left: 3px solid white;
     }
      
-
-    
     .modal::-webkit-scrollbar-thumb {
       border-bottom: 2px solid white;
     }
+
+  .folder {
+    padding: 0.5em 0;
+  }
+
+  .folder p {
+    padding: 0.5em 1em;
+  }
