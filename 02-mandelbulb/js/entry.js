@@ -1,124 +1,152 @@
-var width = window.innerWidth;
-var height = window.innerHeight;
+window.width = window.innerWidth;
+window.height = window.innerHeight;
 
-var camera = new THREE.PerspectiveCamera(45, width / height, 0.01, 1000);
-camera.position.y = 0;
-camera.position.z = 5;
+var camera, scene, renderer, geometry;
+function setupScene() {
+  camera = new THREE.PerspectiveCamera(45, width / height, 0.01, 1000);
+  camera.position.y = 0;
+  camera.position.z = 5;
 
-var scene = new THREE.Scene();
-var geometry = new THREE.PlaneBufferGeometry( 5, 5 );
+  scene = new THREE.Scene();
+  geometry = new THREE.PlaneBufferGeometry(5, 5);
 
-var startTime = Date.now();
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
 
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
+}
 
-var gui = new dat.GUI();
-var guiData = {
+var material, plane;
+function initScene() {
+  material = new THREE.ShaderMaterial({
+    uniforms: {
+      "time": { value: 0.0 },
+      "resolution": { type: "v2", value: new THREE.Vector2() },
+      "camY": { type: "f", value: -0.131 },
+      "camX": { type: "f", value: -0.092 },
+      "camZ": { type: "f", value: -1.575 },
+      "zoom": { type: "f", value: zoom },
+      "colorA": { type: 'v3', value: colorA },
+      "colorB": { type: 'v3', value: colorB },
+      "t": { type: "f", value: saturation },
+      "power": { type: "f", value: power },
+      "rotate": { type: "f", value: rotate },
+      "bailout": { type: "f", value: bailout },
+      "light": { type: "f", value: brightness },
+    },
+    fragmentShader: document.getElementById('mandelbulbFragmentShader').textContent,
+    vertexShader: document.getElementById('vertexShader').textContent,
+
+  });
+
+  plane = new THREE.Mesh(geometry, material);
+  scene.add(plane);
+
+}
+
+
+window.guiData = {
   "zoom": -1.13,
-  "colorA": [162,73,73],
-  "colorB":[247,247,247],
-  "colorInterpolationFactor": 0.6,
-  "power":8.,
+  "colorA": {
+    "r": 255,
+    "g": 78.0140625,
+    "b": 78.0140625
+  },
+  "colorB": {
+    "r": 195,
+    "g": 255,
+    "b": 0
+  },
+  "saturation": 0.6,
+  "power": 8.,
   "rotate": 6.,
   "bailout": 10.,
-  "light":2.,
+  "light": 2.,
 };
 
 
-gui.add(guiData, 'bailout', 5., 25.).step(0.1);
-gui.add(guiData, 'light', 0., 4.).step(0.001);
-gui.add(guiData, 'zoom',-1.5,1.).step(0.01);
-gui.addColor(guiData,'colorA');
-gui.addColor(guiData,'colorB');
-gui.add(guiData, 'colorInterpolationFactor',0.,1.).step(0.001);
-gui.add(guiData, 'power',0.,17.).step(0.0001);
-gui.add(guiData, 'rotate',0.,30.).step(0.5);
+window.zoom = -1.13;
+window.colorA = new THREE.Color(255, 48, 48);
+window.colorB = new THREE.Color(195,255, 0);
+window.power = 8;
+window.rotate = 6.;
+window.bailout = 10.;
+window.brightness = 2.;
+window.saturation = 0.6;
 
-gui.close()
+var gui, colorF;
+function addGuiControls() {
+  gui = new dat.GUI({ load: guiData });
+  gui.remember(this);
 
-var colorA = new THREE.Vector3( guiData.colorA[ 0 ] / 255, guiData.colorA[ 1 ] / 255, guiData.colorA[ 2 ] / 255 );
-var colorB = new THREE.Vector3( guiData.colorB[ 0 ] / 255, guiData.colorB[ 1 ] / 255, guiData.colorB[ 2 ] / 255 );
+  gui.add(this, 'bailout', 5., 25.).step(0.1);
+  gui.add(this, 'power', 0., 17.).step(0.0001);
+  gui.add(this, 'rotate', 0., 30.).step(0.5);
+  colorF = gui.addFolder("Colorize")
+  colorF.add(this, 'brightness', 0., 4.).step(0.001);
+  colorF.add(this, 'saturation', 0., 1.).step(0.001);
+  colorF.addColor(this, 'colorA');
+  colorF.addColor(this, 'colorB');
+}
 
-var material = new THREE.ShaderMaterial( {
-  uniforms: {
-    "time": { value: 0.0 },
-    "resolution": { type: "v2", value: new THREE.Vector2() },
-    "camY": { type: "f", value: -0.131 },
-    "camX": { type: "f", value: -0.092 },
-    "camZ": { type: "f", value: -1.575 },
-    "zoom": { type: "f", value: guiData.zoom },
-    "colorA" : { type : 'v3', value : colorA },
-    "colorB" : { type : 'v3', value : colorB },
-    "t": { type: "f", value: guiData.t },
-    "power": { type: "f", value: guiData.power },
-    "rotate": { type: "f", value: guiData.rotate },
-    "bailout": { type: "f", value: guiData.bailout },
-    "light": { type: "f", value: guiData.light },
-  },
-  fragmentShader: document.getElementById( 'mandelbulbFragmentShader' ).textContent,
-  vertexShader: document.getElementById( 'vertexShader' ).textContent,
 
-} );
+var rotationFlag, domEvents, controls, dragControls;
+function addControls() {
+  rotationFlag = false;
+  domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableRotate = false;
+  dragControls = new THREE.DragControls([plane], camera, renderer.domElement);
 
-var plane = new THREE.Mesh( geometry, material );
-scene.add( plane );
+  dragControls.addEventListener('dragstart', function (event) {
+    if (rotationFlag) {
+      dragControls.deactivate();
+    }
+  });
 
-//Add Controls
-var rotationFlag = false; 
-
-var domEvents	= new THREEx.DomEvents(camera, renderer.domElement);
-var controls = new THREE.OrbitControls(camera, renderer.domElement);  
-controls.enableRotate = false;
-
-var dragControls = new THREE.DragControls( [plane], camera, renderer.domElement );
-
-dragControls.addEventListener( 'dragstart', function ( event ) {
-  if(rotationFlag){
-    dragControls.deactivate();
-  }
-} );
-
-domEvents.addEventListener(plane, 'dblclick', function(event){
-  console.log("clicking", event)
-  rotationFlag = !rotationFlag;
-  if (!rotationFlag){
-    dragControls.activate();
-  }
-}, false)
-
+  domEvents.addEventListener(plane, 'dblclick', function (event) {
+    console.log("clicking", event)
+    rotationFlag = !rotationFlag;
+    if (!rotationFlag) {
+      dragControls.activate();
+    }
+  }, false)
+}
 
 function onWindowResize() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
+  width = window.innerWidth;
+  height = window.innerHeight;
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(width, height);
+}
+
+function render() {
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
+
+  var time = performance.now() * 0.0005;
+  material.uniforms["time"].value = time;
+
+  material.uniforms["zoom"].value = zoom;
+  material.uniforms["colorA"].value = colorA;
+  material.uniforms["colorB"].value = colorB;
+  material.uniforms["t"].value = saturation;
+  material.uniforms["power"].value = power;
+
+  material.uniforms["light"].value = brightness;
+  material.uniforms["bailout"].value = bailout;
+  if (rotationFlag) {
+    material.uniforms["rotate"].value += 0.001;
+    rotate = material.uniforms["rotate"].value;
+  } else {
+    material.uniforms["rotate"].value = rotate;
   }
-
-function animate() {
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-
-    var time = performance.now() * 0.0005;
-    material.uniforms[ "time" ].value = time;
-
-    material.uniforms[ "zoom" ].value = guiData.zoom;
-    material.uniforms[ "colorA" ].value = guiData.colorA;
-    material.uniforms[ "colorB" ].value = guiData.colorB;
-    material.uniforms[ "t" ].value = guiData.colorInterpolationFactor;
-    material.uniforms[ "power" ].value = guiData.power;
-
-    material.uniforms[ "light" ].value = guiData.light;
-    material.uniforms[ "bailout" ].value = guiData.bailout;
-    if (rotationFlag){
-      material.uniforms[ "rotate" ].value += 0.001;
-      guiData.rotate = material.uniforms[ "rotate" ].value;
-     }else{
-       material.uniforms[ "rotate" ].value = guiData.rotate;
-     }
-  } 
+}
 
 window.addEventListener('resize', onWindowResize, false);
-animate();
+setupScene();
+initScene();
+addControls();
+addGuiControls();
+render();

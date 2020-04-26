@@ -10,64 +10,56 @@
   <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
   <script src="https://threejs.org/examples/js/controls/DragControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
-  <script src="/core/threex.domevents.js"></script>
-
+  <script src="/core/js/threex.domevents.js"></script>
   <meta name="description" content="visualizing shaders with three.js experiment">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      background-color: black;
-      border: 0;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    .github-link {
-      top: 20px;
-      right: 20px;
-      color:  rgb(245, 245, 245);
-      text-decoration: none;
-      transition: all .2s ease-in-out;
-
-    }
-
-    .github-link .fab {
-      font-size: 38px; 
-      display: inline-block; 
-      vertical-align: middle;
-      padding: .2em .5em;
-    }
-    .github-link .text { 
-      color: 'white';
-      display: none;
-      font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
-      font-size: 16px;
-      
-    }
-
-    .github-link:hover .text { 
-      display: inline-block; 
-    }
-
-    .github-link:hover .fab {
-      color: rgb(245, 245, 245);
-    }
-  </style>
+  <link href="/core/public/styles.css" rel="stylesheet">
 </head>
-
-<body>
-  <a href="https://github.com/solsarratea/fractals-visualizer" class="github-link" title="View source on Github" >
-    <span class="fab fa-github"></span>
-    <span class="text">View source</span>
-  </a>
-  <body> 
+  <body>
+    <div class="top-bar">
+      <a id="btn" class="info">
+        <span class="fab fas fa-info-circle info"></span>
+      </a>
+      <div id="showInfo" class="modal">
+        <div class="modal-header">
+          <p>MANDELBULB</p>
+          <span class="close">&times;
+          </span>
+        </div>
+        <div class="modal-content">
+          <h4>
+            This is an implementation of <a href="https://en.wikipedia.org/wiki/Mandelbulb"> the Mandelbulb</a> on Three.js and WebGL that using same distance estimator function as in the Mandelbrot Set.
+          </h4>
+          <h3> Interactive Controls :  </h3>
+          <p> Combine them to explore the boundary
+            <p>- ZOOM : scroll in and out. </p>
+            <p>- DRAG:  click and move around.</p>
+            <p>- DOUBLE CLICK: start/stop continous rotation</p>
+          </p>
+          <h3> Extra precision controls : on the right of the screen </h3>
+          <p> The following controls will be generating a new texture to be rendered on the canvas.</p>
+          <p>- bailout: number of precision </p>
+          <p>- power: value of the iterative function. Changes shape. </p>
+          <p>- rotate: discrete change of angle</p>
+            <div class="folder">- COLORIZE FOLDER: 
+              <p>Default color rendering is Rainbow
+                  <p>- colors: create pallete </p>
+                  <p>- Saturation </p>
+                  <p>- Brightness </p>
+              </p>
+            </div>
+          <p class="footer">
+            <p><a href="https://www.recurse.com/" class="RC">
+              <img src="https://avatars0.githubusercontent.com/u/1085202?s=200&v=4"/>  Developed at Recurse Center </a></p>
+              This is a still WIP for any comments drop me at <a href="contact@solquemal.com">contact@solquemal.com</a></p>
+            </p>
+        </div>
+      </div>
+    <a href="https://github.com/solsarratea/visualizer/tree/master/02-mandelbulb" class="info" title="View source on Github" >
+      <span class="fab fa-github"></span>
+      <span class="text">View source</span>
+    </a>
   <script id="vertexShader" type="x-shader/x-fragment">
           varying vec2 vUv;
 
@@ -227,6 +219,7 @@
           
           }
   </script>
+  <script src="/core/js/index-controls.js"></script>
   <script src="../dist/mandelbulb.bundle.js"></script> <!-- Use in production -->
   <!-- <script src="http://localhost:9001/dist/mandelbulb.bundle.js"></script> --> <!-- Use in development -->
 </body>
