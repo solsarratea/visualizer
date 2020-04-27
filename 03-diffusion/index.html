@@ -12,73 +12,49 @@
   <meta name="description" content="visualizing shaders with three.js experiment">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      background-color: black;
-      border: 0;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    .github-link {
-      top: 20px;
-      right: 20px;
-      color:  rgb(245, 245, 245);
-      text-decoration: none;
-      transition: all .2s ease-in-out;
-
-    }
-
-    .github-link .fab {
-      font-size: 38px; 
-      display: inline-block; 
-      vertical-align: middle;
-      padding: .2em .5em;
-    }
-    .github-link .text { 
-      color: 'white';
-      display: none;
-      font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
-      font-size: 16px;
-      
-    }
-
-    .github-link:hover .text { 
-      display: inline-block; 
-    }
-
-    .github-link:hover .fab {
-      color: rgb(245, 245, 245);
-    }
-
-    .dg li.save-row {
-        color: white !important;
-        background:black !important;
-      }
-     
-     select{
-       color: white;
-     }
-     span{
-       background:black !important;
-       box-shadow: 0 0 black !important;
-     }
-     .dg li.save-row .button.gears {
-      padding: 0.8em 1em;
-      background: black url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAANCAYAAAB/9ZQ7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAQJJREFUeNpiYKAU/P//PwGIC/ApCABiBSAW+I8AClAcgKxQ4T9hoMAEUrxx2QSGN6+egDX+/vWT4e7N82AMYoPAx/evwWoYoSYbACX2s7KxCxzcsezDh3evFoDEBYTEEqycggWAzA9AuUSQQgeYPa9fPv6/YWm/Acx5IPb7ty/fw+QZblw67vDs8R0YHyQhgObx+yAJkBqmG5dPPDh1aPOGR/eugW0G4vlIoTIfyFcA+QekhhHJhPdQxbiAIguMBTQZrPD7108M6roWYDFQiIAAv6Aow/1bFwXgis+f2LUAynwoIaNcz8XNx3Dl7MEJUDGQpx9gtQ8YCueB+D26OECAAQDadt7e46D42QAAAABJRU5ErkJggg==) 2px 1px no-repeat !important;
-     }
-
-  </style>
+  <link href="/core/public/styles.css" rel="stylesheet">
 </head>
 
 <body>
-  <a href="https://github.com/solsarratea/learn-three" class="github-link" title="View source on Github" >
+  <div class="top-bar">
+    <a id="btn" class="info">
+      <span class="fab fas fa-info-circle info"></span>
+    </a>
+  <div id="showInfo" class="modal">
+    <div class="modal-header">
+      <p>DIFFUSION</p>
+      <span class="close">&times;
+      </span>
+    </div>
+    <div class="modal-content">
+      <h4>
+        This is an implementation of a diffusion system </a>. This project was developed to experiment ping-pong rendering buffers.
+      </h4>
+      <p> Draw with brush to add color to the screen and see how it diffuses. </p>
+      <h3> Controls : on the right of the screen </h3>
+      <div class="folder">- COLORIZE FOLDER: 
+        <p>- colors: customize the pallete</p>
+        <p>- mixColor: amount of mixing colorA and colorB</p>
+      </div>
+      <div class="folder">- DIFFUSE FOLDER:
+        <p>For each pixel(x,y): it is defined a new value according 8 to neighbours. <br>
+           group 1 = [north, south, east, west]  and <br> group 2 =[north-east, north-west, south-east, south-west]</p>
+        <p>- radius: indicates de size of step for choosing neighbourhood from (x,y)</p>
+        <p>- diff1: weight of diffusion for group 1</p>
+        <p>- diff2: wight of diffusion for group 2</p>
+        <p>- weight: weight of pixel (x,y)</p>
+      </div>
+      <p>- sizeBrush: size of brush  </p>
+      <p>- amountBrush: intensity of brush</p>
+      <p class="footer">
+        <p><a href="https://www.recurse.com/" class="RC">
+          <img src="https://avatars0.githubusercontent.com/u/1085202?s=200&v=4"/>  Developed at Recurse Center </a></p>
+          This is a still WIP for any comments drop me at <a href="contact@solquemal.com">contact@solquemal.com</a></p>
+        </p>
+    </div>
+  </div>
+  <a href="https://github.com/solsarratea/visualizer/tree/master/04-gray-scott" class="info"
+    title="View source on Github">
     <span class="fab fa-github"></span>
     <span class="text">View source</span>
   </a>
@@ -88,7 +64,12 @@
 	  uniform vec3 smokeSource;
 	  uniform vec3 colorA;
 	  uniform vec3 colorB;
-	  uniform float sizeBrush;
+    uniform float sizeBrush;
+    uniform float step;
+    uniform float diff1;
+    uniform float diff2;
+    uniform float weight;
+    uniform float t;
 
       void main() {
 		vec2 pixel = gl_FragCoord.xy / resolution.xy;
@@ -96,45 +77,41 @@
 
 		
 		float dist = distance(smokeSource.xy, gl_FragCoord.xy);
-		
-		/////////////////////////////////////////////////////
-		gl_FragColor.rgb +=  smokeSource.z *0.5* max(sizeBrush-dist,0.0) * colorA;
-
-		gl_FragColor.b -= smokeSource.z *gl_FragColor.b / 200. *colorA.r;
-		gl_FragColor.r -= smokeSource.z *gl_FragColor.r / 200. *colorA.g;
-		gl_FragColor.g -= smokeSource.z *gl_FragColor.g / 200. *colorA.b;
-
-		gl_FragColor.rgb += smokeSource.z *0.5* max(sizeBrush-dist,0.0)* colorB;
-
+		gl_FragColor.rgb +=  smokeSource.z *0.5* max(sizeBrush-dist,0.0);
 
 		//Smoke diffuse
-		float xPixel = 1.0/resolution.x;
-		float yPixel = 1.0/resolution.y;
+		float xPixel = step /resolution.x;
+		float yPixel = step /resolution.y;
 
-		vec4 rightColor = texture2D(texture,vec2(pixel.x+xPixel,pixel.y));
-		vec4 leftColor = texture2D(texture,vec2(pixel.x-xPixel,pixel.y));
-		vec4 upColor = texture2D(texture,vec2(pixel.x,pixel.y+yPixel));
-		vec4 downColor = texture2D(texture,vec2(pixel.x,pixel.y-yPixel));
+		vec4 E = texture2D(texture,vec2(pixel.x+xPixel,pixel.y));
+		vec4 W = texture2D(texture,vec2(pixel.x-xPixel,pixel.y));
+		vec4 N = texture2D(texture,vec2(pixel.x,pixel.y+yPixel));
+		vec4 S = texture2D(texture,vec2(pixel.x,pixel.y-yPixel));
 
-		if(pixel.y <= yPixel){
-			downColor = vec4(0.);
-		}
+    vec4 NE = texture2D(texture,vec2(pixel.x+xPixel,pixel.y + yPixel));
+		vec4 NW = texture2D(texture,vec2(pixel.x-xPixel,pixel.y + yPixel));
+		vec4 SE = texture2D(texture,vec2(pixel.x+xPixel,pixel.y+yPixel));
+		vec4 SW = texture2D(texture,vec2(pixel.x+xPixel,pixel.y-yPixel));
 
-		///////////////////////////////////////////////////////////////
-		float factor = 7.0 * 0.016 * (leftColor.r + rightColor.r + downColor.r * 3.0 + upColor.r - 6.0 * gl_FragColor.r);
-	 
-	
-		float minimum = 0.003;
-		if(factor >= -minimum && factor < 0.0) factor = -minimum;
-		gl_FragColor.rgb += factor;
 		
+    vec3 factor = vec3(0.);
+    factor += gl_FragColor.rgb * weight;
+    factor += N.rgb * diff1;
+    factor += S.rgb * diff1;
+    factor += E.rgb * diff1;
+    factor += W.rgb * diff1;
+    factor += NE.rgb * diff2;
+    factor += NW.rgb * diff2;
+    factor += SE.rgb * diff2;
+    factor += SW.rgb * diff2;
 
-
-	 }
+    gl_FragColor = vec4(min(factor/9.,1.)*(colorB*t+(1.-t)*colorA),1.);
+      }
   </script>
   <body> 
  
   </script>
+  <script src="/core/js/index-controls.js"></script>
   <script src="../dist/diffusion.bundle.js"></script> <!-- Use in production -->
   <!-- <script src="http://localhost:9001/dist/diffusion.bundle.js"></script> --> <!-- Use in development -->
 </body>

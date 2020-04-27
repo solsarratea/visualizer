@@ -2,39 +2,91 @@ var w = window.innerWidth;
 var h = window.innerHeight;
 
 window.guiData = {
-    "preset": "default",
+    "preset": "fuego",
     "remembered": {
-        "default": {
+      "default": {
         "0": {
-            "colorA": {
-            "r": 89.07628676470587,
-            "g": 177.5,
-            "b": 111.43630620351591
-            },
-            "colorB": {
-            "r": 192.5,
-            "g": 51.30974264705883,
-            "b": 96.72758766968325
-            },
-            "sizeBrush": 10.
-            }
+          "colorA": {
+            "r": 219.29999999999998,
+            "g": 203.54235099337748,
+            "b": 70.5871875
+          },
+          "colorB": {
+            "r": 224.4,
+            "g": 155.31301796407186,
+            "b": 18.372750000000007
+          },
+          "sizeBrush": 57,
+          "amountBrush": 0.705,
+          "radius": 1.62,
+          "diff1": 0.858,
+          "diff2": 1.599,
+          "weight": 0.21,
+          "mixColor": 0.17
         }
+      },
+      "fuego": {
+        "0": {
+          "sizeBrush": 57,
+          "amountBrush": 0.705,
+          "colorA": {
+            "r": 219.29999999999998,
+            "g": 203.54235099337748,
+            "b": 70.5871875
+          },
+          "colorB": {
+            "r": 224.4,
+            "g": 155.31301796407186,
+            "b": 18.372750000000007
+          },
+          "mixColor": 0.17,
+          "radius": 1.62,
+          "diff1": 0.858,
+          "diff2": 1.599,
+          "weight": 0.21
+        }
+      }
+    },
+    "closed": false,
+    "folders": {
+      "Colorize": {
+        "preset": "Default",
+        "closed": false,
+        "folders": {}
+      },
+      "Diffusion": {
+        "preset": "Default",
+        "closed": false,
+        "folders": {}
+      }
     }
-}
-
+  }
  
-window.colorA= new THREE.Color(255, 255, 0);
-window.colorB= new THREE.Color(255, 0, 0);
-window.sizeBrush = 10.;
+window.colorA= new THREE.Color(89,177,111);
+window.colorB= new THREE.Color(192,51,96);
+window.sizeBrush = 46.;
+window.amountBrush = 0.25;
+window.radius = 1.;
+window.diff1 = 1;
+window.diff2 = 0.94;
+window.weight = 1.16;
+window.mixColor = 0.5;
+
+var colorF, diffusionF;
 function addGuiControls(){
     window.gui = new dat.GUI({ load: guiData });
-
-
-
+    colorF = gui.addFolder("Colorize")
+    diffusionF = gui.addFolder("Diffusion")
     gui.remember(this);
-    gui.addColor(this,"colorA");
-    gui.addColor(this,"colorB"); 
-    gui.add(this, "sizeBrush",10.,100.).step(1.);  
+    gui.add(this, "sizeBrush",10.,100.).step(1.);
+    gui.add(this, "amountBrush",0.01,1.).step(.001); 
+    colorF.addColor(this,"colorA");
+    colorF.addColor(this,"colorB");
+    colorF.add(this, "mixColor",0,1).step(0.01);  
+    diffusionF.add(this, "radius",0.1,10.).step(.01); 
+    diffusionF.add(this, "diff1",0.1,2.).step(.001); 
+    diffusionF.add(this, "diff2",0.1,2.).step(.001);
+    diffusionF.add(this, "weight",0.,2.).step(.01);
 }
 
 
@@ -73,7 +125,12 @@ function initBufferScene(){
         smokeSource: {type:"v3",value:new THREE.Vector3(0,0,0)},
         sizeBrush: {type:'f', value: 10. },
         colorA : { type : 'c', value : colorA },
-        colorB : { type : 'c', value : colorB}
+        colorB : { type : 'c', value : colorB},
+        step: {type:'f', value: 1. },
+        diff1: {type:'f', value: 0.8 },
+        diff2: {type:'f', value: 1.4 },
+        weight: {type:'f', value: 3. },
+        t: {type:'f', value: 0.5 },
     };
     
     bufferMaterial = new THREE.ShaderMaterial({
@@ -107,7 +164,7 @@ function setSmokeMouse(){
     
     document.onmousedown = function(event){
         mouseDown = true;
-        bufferMaterial.uniforms.smokeSource.value.z = 0.01;
+        bufferMaterial.uniforms.smokeSource.value.z = amountBrush;
     }
     document.onmouseup = function(event){
         mouseDown = false;
@@ -142,6 +199,13 @@ function render() {
     bufferMaterial.uniforms.colorB.value.r = colorB.r/255;
     bufferMaterial.uniforms.colorB.value.g = colorB.g/255;
     bufferMaterial.uniforms.colorB.value.b = colorB.b/255;
+
+    bufferMaterial.uniforms.step.value = radius;
+    bufferMaterial.uniforms.diff1.value = diff1;
+    bufferMaterial.uniforms.diff2.value = diff2;
+    bufferMaterial.uniforms.weight.value = weight;
+    bufferMaterial.uniforms.t.value = mixColor;
+
 
 
     //Draw to screen
