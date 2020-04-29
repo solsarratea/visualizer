@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>05 - Game of Life </title>
+  <meta charset="utf-8">
+  <title>Game of Life Visualizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <meta name="description" content="visualizing shaders with three.js experiment">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+    integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+  <link href="/core/public/styles.css" rel="stylesheet">
+  <script src="/core/js/utils.js"></script>
+</head>
+
+<body>
+  <a id="btn" class="info">
+    <span class="fab fas fa-info-circle info"></span>
+  </a>
+  <div id="showInfo" class="modal">
+    <div class="modal-header">
+      <p>GAME OF LIFE</p>
+      <span class="close">&times;
+      </span>
+    </div>
+    <div class="modal-content">
+      <h4>
+        This is an implementation of John Conway's Game of Life</a> on Three.js and WebGL that allows pattern formation in video capture.
+      </h4>
+      <p>On the right side: Open Controls</p>
+    </div>
+
+  </div>
+  </div>
+  <a href="https://github.com/solsarratea/visualizer/tree/master/04-gray-scott" class="info"
+    title="View source on Github">
+    <span class="fab fa-github"></span>
+    <span class="text">View source</span>
+  </a>
+
+  <body>
+    <video id="video" autoplay="" style="display:none"></video>
+    <script type="x-shader/x-fragment" id="fragShader">
+      uniform int timer;
+      uniform vec2 resolution;
+      uniform vec2 mouse;
+      uniform sampler2D texture;
+      uniform sampler2D start;
+      vec2 pos;
+      vec2 texColor;
+      vec2 offset;
+      uniform float pixelSize;
+      uniform float t;
+
+
+      void main( void ){
+         pos = vec2(
+           floor( gl_FragCoord.x / pixelSize ) * pixelSize + pixelSize / 5.0,
+           floor( gl_FragCoord.y / pixelSize ) * pixelSize + pixelSize / 5.0
+         );
+
+         vec4 videoColor= texture2D(start, pos / resolution.xy);
+         
+         vec3 color = texture2D( texture, pos / resolution ).rgb;
+         float neighbors = 0.0;
+         for( float y = -2.0; y  <=2.0; y++){
+           for( float x = -2.0; x<=2.0; x++){
+               vec4 pixelC =  texture2D( texture, (pos + vec2( x * pixelSize, y * pixelSize ) ) / resolution );
+               neighbors += step(
+                   0.1,
+                  (pixelC.r + pixelC.g + pixelC.b)/3.
+               );
+            }
+         };
+        float status = step(0.2, (color.r + color.g + color.b)/3. );
+        neighbors -= status;
+      
+         if( status == 1.0 && ( neighbors >= 6. || neighbors <= 3.0 )){
+           color = videoColor.rgb *0.5;
+         }
+         else if( status == 0.0 && neighbors == 3.0 ){
+           color = videoColor.rgb ;
+         }
+         else if( floor(pos / (pixelSize*2.0)) == floor(mouse / (pixelSize*2.0)) ){
+           color = videoColor.rgb * t;
+         }
+      
+           else color = vec3(status );
+  
+          gl_FragColor = vec4(color,1.);
+        }
+    </script>
+    <script id="vertexShader" type="x-shader/x-vertex">
+       varying vec2 texCoordVarying;
+   
+       void main() {
+           gl_Position =  vec4(position,1.0);
+       }
+    </script>
+    <script type="x-shader/x-fragment" id="color">
+      uniform vec2 resolution;
+      uniform sampler2D texture;
+      uniform vec3 color1;
+      uniform vec3 color2;
+      void main( void ){
+         vec2 uv = gl_FragCoord.xy / resolution;
+         gl_FragColor = vec4( mix( 
+             color1,
+             color2,
+             texture2D( texture, uv ).r), 1.0);
+      }
+     </script>
+    <script src="/core/js/index-controls.js"></script>
+    <script src="../dist/gol.bundle.js"></script> <!-- Use in production -->
+    <!-- <script src="http://localhost:9001/dist/gsvideo.bundle.js"></script> -->
+    <!-- Use in development -->
+  </body>
+
+</html>
