@@ -54,22 +54,6 @@ function initScene(){
   dragControls = new THREE.DragControls([plane], camera, renderer.domElement);
 }
 
-
-window.guiData = {
-  "orX": 0.,
-  "orY": 0.,
-  "scale": 0.69,
-  "zoom": -1.5,
-  "colorA": [65, 52, 170],
-  "colorB": [247, 247, 247],
-  "colorD": [162, 73, 73],
-  "colorC": [247, 247, 247],
-  "rainbowAmount": 1,
-  "scapeRadius": 2.,
-  "zoom": 0.,
-  "iterations":100,
-};
-
 window.colorA = new THREE.Color(65,52,170);
 window.colorB = new THREE.Color(56,145,87);
 window.colorC = new THREE.Color(162,73,63);
