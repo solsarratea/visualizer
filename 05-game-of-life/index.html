@@ -55,43 +55,77 @@
       vec2 offset;
       uniform float pixelSize;
       uniform float t;
+      uniform float threshold;
+      uniform float bound;
+      uniform float rNeighbour;
+      uniform float tNeighbour;
+      uniform bool remember;
+      uniform bool travel;
 
 
       void main( void ){
+         
          pos = vec2(
-           floor( gl_FragCoord.x / pixelSize ) * pixelSize + pixelSize / 5.0,
-           floor( gl_FragCoord.y / pixelSize ) * pixelSize + pixelSize / 5.0
+           floor( gl_FragCoord.x / pixelSize ) * pixelSize + pixelSize * t,
+           floor( gl_FragCoord.y / pixelSize ) * pixelSize + pixelSize * t
          );
 
-         vec4 videoColor= texture2D(start, pos / resolution.xy);
-         
-         vec3 color = texture2D( texture, pos / resolution ).rgb;
+        vec3 color = texture2D( texture, pos / resolution ).rgb;
+
+        if (remember){
+          color.g = color.r;
+        };
+
+        if (travel){
+          color.r = color.g;
+          color.g = 0.;
+
+        } else {
+
+         vec2 dy = floor(rNeighbour * vec2(1.,-1.) + tNeighbour)* pixelSize /resolution.xy; 
+         vec2 dx = floor(rNeighbour * vec2(1.,-1.) + tNeighbour)* pixelSize /resolution.xy;
+         vec2 pixel = pos / resolution.xy;
+
          float neighbors = 0.0;
-         for( float y = -2.0; y  <=2.0; y++){
-           for( float x = -2.0; x<=2.0; x++){
-               vec4 pixelC =  texture2D( texture, (pos + vec2( x * pixelSize, y * pixelSize ) ) / resolution );
-               neighbors += step(
-                   0.1,
-                  (pixelC.r + pixelC.g + pixelC.b)/3.
-               );
-            }
-         };
-        float status = step(0.2, (color.r + color.g + color.b)/3. );
-        neighbors -= status;
-      
-         if( status == 1.0 && ( neighbors >= 6. || neighbors <= 3.0 )){
-           color = videoColor.rgb *0.5;
+         vec4 N = texture2D(texture, vec2(pixel.x, pixel.y + dy.x));
+        neighbors += step(threshold,N.r);
+         vec4 S = texture2D(texture, vec2(pixel.x, pixel.y + dy.y));
+         neighbors += step(threshold,S.r);
+         vec4 W = texture2D(texture, vec2(pixel.x + dx.x, pixel.y));
+        neighbors += step(threshold,W.r);
+         vec4 E = texture2D(texture, vec2(pixel.x + dx.y, pixel.y));
+        neighbors += step(threshold,E.r);
+ 
+         vec4 NE = texture2D(texture, vec2(pixel.x + dx.x, pixel.y + dy.x));
+        neighbors += step(threshold,NE.r);
+         vec4 NW = texture2D(texture, vec2(pixel.x + dx.y, pixel.y + dy.x));
+        neighbors += step(threshold,NW.r);
+         vec4 SE = texture2D(texture, vec2(pixel.x + dx.x, pixel.y + dy.y));
+        neighbors += step(threshold,SE.r);
+         vec4 SW = texture2D(texture, vec2(pixel.x + dx.y, pixel.y + dy.y));
+        neighbors += step(threshold,SW.r);
+
+       // neighbors = N.r + S.r + E.r + W.r + NE.r + NW.r + SE.r +SW.r;
+
+
+        float status = step(threshold, color.r );
+        if (status == 1.0 && neighbors > bound ){
+          color = vec3(0.5, color.g, color.b);
+        }else if( status == 1.0 && ( neighbors <= 1.0 )){
+           color = vec3(0.5, color.g, color.b);
          }
-         else if( status == 0.0 && neighbors == 3.0 ){
-           color = videoColor.rgb ;
+         else if( status == 0.0 && neighbors == bound ){
+           color = vec3(1., color.g, color.b);
          }
          else if( floor(pos / (pixelSize*2.0)) == floor(mouse / (pixelSize*2.0)) ){
-           color = videoColor.rgb * t;
-         }
-      
-           else color = vec3(status );
+           color =vec3(1.);
+         } else color = vec3(status, color.g, color.b);
+
+        }
   
-          gl_FragColor = vec4(color,1.);
+        gl_FragColor = vec4(color,1.);
+
+        
         }
     </script>
     <script id="vertexShader" type="x-shader/x-vertex">
@@ -104,16 +138,25 @@
     <script type="x-shader/x-fragment" id="color">
       uniform vec2 resolution;
       uniform sampler2D texture;
+      uniform sampler2D start;
       uniform vec3 color1;
       uniform vec3 color2;
+      uniform float activate;
+
       void main( void ){
          vec2 uv = gl_FragCoord.xy / resolution;
-         gl_FragColor = vec4( mix( 
+         vec3 color3 = texture2D(start, uv).rgb;
+         
+         vec4 newColor = vec4( mix( 
              color1,
-             color2,
+             (color2 * (1.-activate) + color3 * activate) ,
              texture2D( texture, uv ).r), 1.0);
+
+         gl_FragColor = newColor ;
+         //+ 0.1* vec4(1.-color3,1.);
       }
      </script>
+     <script src="/core/js/utils.js"></script>
     <script src="/core/js/index-controls.js"></script>
     <script src="../dist/gol.bundle.js"></script> <!-- Use in production -->
     <!-- <script src="http://localhost:9001/dist/gsvideo.bundle.js"></script> -->
