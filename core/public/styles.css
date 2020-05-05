@@ -74,6 +74,7 @@
    }
 
    .modal {
+    display: none;
       position: fixed;
       width: 50%;
       min-width: 800px;

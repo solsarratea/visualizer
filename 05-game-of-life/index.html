@@ -72,16 +72,6 @@
 
         vec3 color = texture2D( texture, pos / resolution ).rgb;
 
-        if (remember){
-          color.g = color.r;
-        };
-
-        if (travel){
-          color.r = color.g;
-          color.g = 0.;
-
-        } else {
-
          vec2 dy = floor(rNeighbour * vec2(1.,-1.) + tNeighbour)* pixelSize /resolution.xy; 
          vec2 dx = floor(rNeighbour * vec2(1.,-1.) + tNeighbour)* pixelSize /resolution.xy;
          vec2 pixel = pos / resolution.xy;
@@ -121,8 +111,6 @@
            color =vec3(1.);
          } else color = vec3(status, color.g, color.b);
 
-        }
-  
         gl_FragColor = vec4(color,1.);
 
         
@@ -142,6 +130,7 @@
       uniform vec3 color1;
       uniform vec3 color2;
       uniform float activate;
+      uniform float t;
 
       void main( void ){
          vec2 uv = gl_FragCoord.xy / resolution;
@@ -149,11 +138,10 @@
          
          vec4 newColor = vec4( mix( 
              color1,
-             (color2 * (1.-activate) + color3 * activate) ,
+             (color2 * (1.-activate) + (t*color3 + (1.-t )*(1.-color3) -color2) * activate) ,
              texture2D( texture, uv ).r), 1.0);
 
-         gl_FragColor = newColor ;
-         //+ 0.1* vec4(1.-color3,1.);
+         gl_FragColor = newColor;
       }
      </script>
      <script src="/core/js/utils.js"></script>
