@@ -13,7 +13,7 @@ function setupMainScene() {
   document.body.appendChild(renderer.domElement);
 }
 
-var bufferScene, textureA, textureB, startText;
+var bufferScene, textureA, textureB, textureC, startText;
 function setupBufferScene() {
 
   bufferScene = new THREE.Scene();
@@ -32,13 +32,22 @@ function setupBufferScene() {
     type: THREE.FloatType
   });
 
+  textureC = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearMipMapLinearFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.FloatType
+  });
+
   textureA.texture.wrapS = THREE.ClampToEdgeWrapping;
   textureA.texture.wrapT = THREE.ClampToEdgeWrapping;
   textureB.texture.wrapS = THREE.ClampToEdgeWrapping;
   textureB.texture.wrapT = THREE.ClampToEdgeWrapping;
+  textureC.texture.wrapS = THREE.ClampToEdgeWrapping;
+  textureC.texture.wrapT = THREE.ClampToEdgeWrapping;
 
   createTexture = new TextureFactory();
-  createTexture.fromImage('/core/flor.jpg');
+  createTexture.fromVideoCapture();
   startText = createTexture.texture;
 
 }
@@ -60,13 +69,18 @@ function initBufferScene() {
       rNeighbour: { type: 'f', value: rNeighbour },
       tNeighbour: { type: 'f', value: tNeighbour },
       threshold: { type: 'f', value: threshold },
-      remember: { type: 'b', value: remember },
-      travel: { type: 'bool', value: travel }
+      inter: { type: 'f', value: int },
+      outterRadius: { type: 'f', value: outterRadius },
+      innerRadius: { type: 'f', value: innerRadius },
+      zoom:  {type:'f', value: zoom},
+      rotate:  {type:'f', value: rotate},
+      centerX:  {type:'f', value: centerX},
+      centerY:  {type:'f', value: centerY}
 
     },
 
-    vertexShader: document.getElementById('vertexShader').innerHTML,
-    fragmentShader: this.document.getElementById('fragShader').innerHTML
+    vertexShader: this.document.getElementById('2d-vertex-shader').innerHTML,
+    fragmentShader: this.document.getElementById('2d-fragment-shader').innerHTML
   });
 
   plane = new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight);
@@ -74,7 +88,6 @@ function initBufferScene() {
   bufferScene.add(bufferObject);
 
 }
-
 
 window.color1 = new THREE.Color(255, 255, 255);
 window.color2 = new THREE.Color(0, 0, 0);
@@ -94,6 +107,13 @@ window.activate = 0;
 window.remember = 0;
 window.travel = 0;
 window.t=0;
+window.outterRadius=30.;
+window.innerRadius=10.;
+window.int=0.2;
+window.zoom = 0.;
+window.rotate = 0.;
+window.centerX = window.innerWidth/2.;
+window.centerY = window.innerHeight/2.;
 
 
 
@@ -108,6 +128,10 @@ function initFinalScene() {
       color2: { type: 'c', value: color2 },
       activate: { type: 'f', value: activate },
       t: { type: 'f', value: 0. },
+      zoom:  {type:'f', value: zoom},
+      rotate:  {type:'f', value: rotate},
+      centerX:  {type:'f', value: centerX},
+      centerY:  {type:'f', value: centerY}
     },
     vertexShader: document.getElementById('vertexShader').innerHTML,
     fragmentShader: document.getElementById('color').textContent
@@ -147,23 +171,35 @@ window.guiData = {
   "closed": false,
   "folders": {}
 }
-
+window.feedCam = () => { window.activate = 1; }
 function addGuiControls() {
   var gui = new dat.GUI({ load: guiData });
   gui.remember(this);
+  continous = gui.addFolder("Continous")
+  discrite = gui.addFolder("Discrete")
+
 
   gui.addColor(this, "color1");
   gui.addColor(this, "color2");
-  gui.add(this, "iterations", 0, 100).step(1);
-  gui.add(this, "roundPos", -0.2, 1.).step(0.0001);
-  gui.add(this, "pixelSize", 0.1, 100).step(1.);
-  gui.add(this, "threshold", 0.01, 2.).step(0.001);
   gui.add(this, "frame", 1., 10.).step(1);
-  gui.add(this, "bound", 1., 9.).step(1);;
-  gui.add(this, "rNeighbour", 0., 2.).step(0.01);
-  gui.add(this, "tNeighbour", -rNeighbour, rNeighbour).step(0.01);
-  gui.add(this, "activate", 0, 1.).step(1.);
-  gui.add(this, "t",0.,1.).step(0.01);
+  gui.add(this, "pixelSize", 0.1, 100).step(1.);
+  gui.add(this, "zoom", -0.1, 0.1).step(0.000001);
+  gui.add(this, "rotate", -0.1, 0.1).step(0.000001);
+  gui.add(this, "centerX",0,window.innerWidth);
+  gui.add(this, "centerY",0,window.innerHeight);
+
+  continous.add(this, "iterations", 0, 100).step(1);
+  continous.add(this, "roundPos", -0.2, 1.).step(0.0001);
+  continous.add(this, "threshold", 0.01, 2.).step(0.001);
+
+  continous.add(this, "rNeighbour", 0., 2.).step(0.01);
+  continous.add(this, "tNeighbour", -1., 1.).step(0.001);
+  continous.add(this, "feedCam");
+  continous.add(this, "innerRadius", 1.,200.).step(1.);
+  continous.add(this, "outterRadius", 3., 500).step(1.);
+
+  continous.add(this, "t",0.,1.).step(0.01);
+  continous.add(this, "int",0.,1.).step(0.01);
 
 }
 
@@ -230,14 +266,20 @@ function render() {
   ++frameCount;
 
   ++bufferMaterial.uniforms.timer.value;
-  bufferMaterial.uniforms.t.value = roundPos;
+  bufferMaterial.uniforms.t.value = t;
   bufferMaterial.uniforms.pixelSize.value = pixelSize;
   bufferMaterial.uniforms.threshold.value = threshold;
   bufferMaterial.uniforms.bound.value = bound;
   bufferMaterial.uniforms.rNeighbour.value = rNeighbour;
   bufferMaterial.uniforms.tNeighbour.value = tNeighbour;
-  bufferMaterial.uniforms.travel.value = travel;
-  bufferMaterial.uniforms.remember.value = remember;
+  bufferMaterial.uniforms.inter.value =   int;
+  bufferMaterial.uniforms.outterRadius.value = outterRadius;
+  bufferMaterial.uniforms.innerRadius.value = innerRadius;
+
+  bufferMaterial.uniforms.zoom.value = zoom;
+  bufferMaterial.uniforms.rotate.value = rotate;
+  bufferMaterial.uniforms.centerX.value = centerX;
+  bufferMaterial.uniforms.centerY.value = centerY;
 
 
   finalMaterial.uniforms.color1.value.r = color1.r / 255;
