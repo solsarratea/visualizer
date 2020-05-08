@@ -21,7 +21,7 @@ class TextureFactory {
         this.texture.needsUpdate= true;
     }
 
-    fromVideo() {
+    fromVideoCapture() {
     if ( navigator.mediaDevices && navigator.mediaDevices.getUserMedia ) {
         var constraints = { video: { width: 1280, height: 720, facingMode: 'user' } };
         

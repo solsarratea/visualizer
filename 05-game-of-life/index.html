@@ -58,11 +58,13 @@
   </script>
 
     <script id="2d-fragment-shader" type="x-shader/x-fragment">
+    //referece https://0fps.net/2012/11/19/conways-game-of-life-for-curved-surfaces-part-1/
     uniform int timer;
     uniform vec2 resolution;
     uniform vec2 mouse;
     uniform sampler2D texture;
     uniform sampler2D start;
+    float activate =1.;
 
     vec2 pos;
     vec2 texColor;
@@ -79,9 +81,11 @@
     uniform float rotate;
     uniform float centerX;
     uniform float centerY;
+    uniform float randomBug;
+    uniform float curves;
 
     //Cell radius
-    const int kernelRadius = 8;
+    const int kernelRadius = 13;
     uniform float outerRadius;
     uniform float innerRadius;
 
@@ -91,16 +95,17 @@
         vec4 outter; 
     };
 
-    const float birth_min =  0.27;
-    const float birth_max = 0.36;
+    const float birth_min =  0.278;
+    const float birth_max = 0.3065;
 
 
-    const float death_min = 0.26;
-    const float death_max = 0.445; 
+    const float death_min = 0.267;
+    const float death_max = 0.345; 
 
     const float PI = 3.14159265359;
     const float alpha_n = 0.028;
     const float alpha_m =  0.147;
+   
 
     float sigma1(float x, float a, float alpha) {
       return 1.0 / (1.0 + exp(-4.0*(x-a)/alpha));
@@ -129,14 +134,15 @@
       CellDensity d = CellDensity(vec4(0.0),vec4(0.0));
       float norm_i = 0.0;
       float norm_o = 0.0;
-      vec2 uv;
       float dr = rNeighbour;
       float a = 0.0;
-
+      vec2 uv;
+      
       for(int i=-kernelRadius;i<kernelRadius;i++){
         for(int j=-kernelRadius;j<kernelRadius;j++){
+
           uv = mod((gl_FragCoord.xy + vec2(i,j)) / resolution,vec2(1.0));
-          uv = uv *PI / vec2(kernelRadius);
+          uv =  curves * ( PI * uv / vec2(randomBug))+ (1. - curves) * uv;
           vec4 f = texture2D(texture,uv + tNeighbour /100.);
           float r = sqrt(float(i*i + j*j)) * dr;
         
@@ -147,6 +153,7 @@
           float wo= weight(r, outerRadius);
           d.outter += f * wo;
           norm_o += wo;
+
           }
         }
     
@@ -173,28 +180,31 @@
 
       vec2 center = vec2(centerX,centerY);
 
-      vec2 pixelT = (1. - zoom) * (gl_FragCoord.xy - center) + center;
+      vec2 pixelT = (1. - zoom ) * (gl_FragCoord.xy - center) + center;
       pixelT = rotateP(pixelT, center, rotate );   
       pos = pixelT;
     
       float paintAlpha;
-      if( length(pos - mouse ) <= pixelSize ){
+      if( length(pixelT - mouse ) <= pixelSize ){
           paintAlpha = 1.;
       }
 
       float f = texture2D(texture,pos/resolution).r;
 
-      CellDensity cell = computeCellDensity(pos/resolution);
+      CellDensity cell = computeCellDensity(pixelT);
 
       float m = cell.outter.r;
       float n = cell.inner.r;
-      float newState =  S(n,m)* 2. - f;
-      
-      newState = f * inter * 0.01 + newState * (1.- inter);
-      
+      //CHECK OUT
+      float newState =  2. *S(n,m) - f;
+      newState = f * inter * 0.1 + newState * (1.- inter *0.1);
       newState = mix(newState,1.0,paintAlpha);
 
-      gl_FragColor = vec4(newState, m, n, 0.);
+
+      vec4 videoColor= texture2D(start, pixelT/ resolution.xy);
+      vec4 mixy = vec4(newState, m, n, .2) + videoColor * threshold;
+
+      gl_FragColor = mixy;
 
       }
     </script>
@@ -218,14 +228,14 @@
       void main( void ){
         vec2 uv = gl_FragCoord.xy / resolution;
         vec3 color3 = texture2D(start, uv).rgb;
-        vec3 color4= (color2 * (1.-activate) + (t*color3 + (1.-t )*(1.-color3) -color2) * activate);
+        vec3 color4 = (color2 * (1.-activate) + (t*color3 + (1.-t )*(1.-color3) -color2) * activate);
         
         vec4 newColor = vec4( mix( 
           color1,
           color4,
           texture2D( texture, uv ).r), 1.0);
           
-        gl_FragColor = newColor ;
+        gl_FragColor = newColor;
       }
         
     </script>
