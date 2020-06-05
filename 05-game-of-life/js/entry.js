@@ -104,8 +104,6 @@ window.bound = 3.;
 window.rNeighbour = 1.;
 window.tNeighbour = 0.;
 window.activate = 0;
-window.remember = 0;
-window.travel = 0;
 window.invert = 0;
 window.outterRadius = 30.;
 window.innerRadius = 10.;
@@ -198,7 +196,7 @@ function addGuiControls() {
   var gui = new dat.GUI({ load: guiData });
     gui.remember(this);
     background = gui.addFolder("Custom background texture")
-    continous = gui.addFolder("Continous")
+    continous = gui.addFolder("Smooth Game of Life")
     //discrite = gui.addFolder("Discrete")
 
     gui.addColor(this, "color1");
