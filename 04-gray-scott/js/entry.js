@@ -1,3 +1,4 @@
+window.video = document.createElement( 'video' );
 function Brush(){
     this.x = window.innerWidth;
     this.y = window.innerHeight;
@@ -62,28 +63,8 @@ function Brush(){
         }
         
     })
-}//
-  
-if ( navigator.mediaDevices && navigator.mediaDevices.getUserMedia ) {
-
-  var constraints = { video: { width: 1280, height: 720, facingMode: 'user' } };
-
-  navigator.mediaDevices.getUserMedia( constraints ).then( function ( stream ) {
-
-    // apply the stream to the video element used in the texture
-
-    video.srcObject = stream;
-    video.play();
-
-  } ).catch( function ( error ) {
-
-    console.error( 'Unable to access the camera/webcam.', error );
-
-  } );
-
-} else {
-  console.error( 'MediaDevices interface not available.' );
 }
+  
 
 var scene, camera, renderer, width,height,controls,dragControls;
 var video, videoTexture, movieScreen;   
@@ -98,25 +79,6 @@ function setupMainScene()
   renderer.setSize( window.innerWidth, window.innerHeight );
   document.body.appendChild( renderer.domElement );
 
-      ///////////
-    // VIDEO //
-    //////////
-
-  video = document.getElementById( 'video' );
-  videoTexture = new THREE.VideoTexture( video );
-  videoTexture.minFilter = THREE.LinearFilter;
-  videoTexture.magFilter = THREE.LinearFilter;
-  
-  movieMaterial = new THREE.MeshBasicMaterial( { map: videoTexture, overdraw: true, side:THREE.DoubleSide } );
-  // the geometry on which the movie will be displayed;
-  // 		movie image will be scaled to fit these dimensions.
-  movieGeometry = new THREE.PlaneGeometry( 240, 100, 4, 4 );
-  movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
-  movieScreen.position.set(0,50,0);
-  //scene.add(movieScreen);
-  
-  camera.position.set(0,150,300);
-  camera.lookAt(movieScreen.position);
 }
   
   
@@ -137,30 +99,33 @@ window.centerY = window.innerHeight/2.;
 window.interpolate = 0;
 window.tNeighbour = 0.;
 window.rNeighbour  = 1.;
-  
-  
+
+
 var bufferScene, textureA,textureB, initText;
 function setupBufferScene() {
 
   bufferScene = new THREE.Scene();
 
-  textureA = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { 
-  minFilter: THREE.LinearFilter, 
-  magFilter: THREE.LinearMipMapLinearFilter, 
+  textureA = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, {
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearMipMapLinearFilter,
   format: THREE.RGBAFormat,
   type: THREE.FloatType});
 
-  textureB = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { 
-  minFilter: THREE.LinearFilter, 
-  magFilter: THREE.LinearMipMapLinearFilter, 
+  textureB = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, {
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearMipMapLinearFilter,
   format: THREE.RGBAFormat,
   type: THREE.FloatType} );
 
-  initText = videoTexture;
+  createTexture = new TextureFactory();
+  createTexture.fromVideoCapture();
+  initText = createTexture.texture;
+
 }
-  
+
 var plane, bufferObject;
-function initBufferScene(){ 
+function initBufferScene(){
     bufferMaterial = new THREE.ShaderMaterial( {
     uniforms: {
         bufferTexture: { type: "t", value: textureA.texture },
