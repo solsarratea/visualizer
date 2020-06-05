@@ -1,4 +1,3 @@
-
 var scene, camera, renderer, width, height, controls, dragControls;
 function setupMainScene() {
   scene = new THREE.Scene();
@@ -47,8 +46,9 @@ function setupBufferScene() {
   textureC.texture.wrapT = THREE.ClampToEdgeWrapping;
 
   createTexture = new TextureFactory();
-  createTexture.fromVideoCapture();
+  createTexture.fromCanvas("");
   startText = createTexture.texture;
+
 
 }
 
@@ -57,8 +57,8 @@ function initBufferScene() {
 
   bufferMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      start: { type: "t", value: startText },
-      texture: { type: 't', value: textureA.texture },
+        start: { type: "t", value: startText, minFilter: THREE.NearestFilter },
+        texture: { type: 't', value: textureA.texture, minFilter: THREE.NearestFilter },
       timer: { type: 'i', value: 0 },
       resolution: { type: 'v2', value: new THREE.Vector2() },
       mouse: { type: 'v2', value: new THREE.Vector2() },
@@ -118,6 +118,7 @@ window.centerX = window.innerWidth / 2.;
 window.centerY = window.innerHeight / 2.;
 window.curves = 0.;
 window.randomBug = 1.;
+window.message = "";
 
 
 
@@ -127,7 +128,7 @@ function initFinalScene() {
     uniforms: {
       resolution: { type: 'v2', value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
       texture: { type: 't', value: textureB.texture, minFilter: THREE.NearestFilter },
-      start: { type: "t", value: startText },
+        start: { type: "t", value: startText.texture, minFilter: THREE.NearestFilter },
       color1: { type: 'c', value: color1 },
       color2: { type: 'c', value: color2 },
       activate: { type: 'f', value: activate },
@@ -168,7 +169,7 @@ window.guiData = {
         "bound": 3,
         "rNeighbour": 1.,
         "tNeighbour": 0.04,
-        "curves" :12.,
+          "curves" :12.,
       }
     }
   },
@@ -177,14 +178,32 @@ window.guiData = {
   "folders": {}
 }
 
-window.feedCam = () => { window.activate = 1; }
-window.showCurves = () => {window.curves = 1.; console.log("curv")}
+window.feedCam = () => {
+    createTexture.updateWebcam(bufferMaterial,finalMaterial);
+}
+
+window.writeText = () => {
+    createTexture.fromCanvas("ready!");
+
+    bufferMaterial.uniforms.start.value = createTexture.texture;
+    finalMaterial.uniforms.start.value = createTexture.texture;
+
+
+}
+
+window.showCurves = () => {
+if (window.curves){
+        window.curves = 0;
+    }else{
+        window.curves = 1.;
+    }
+}
+
 function addGuiControls() {
   var gui = new dat.GUI({ load: guiData });
   gui.remember(this);
   continous = gui.addFolder("Continous")
-  discrite = gui.addFolder("Discrete")
-
+    // discrite = gui.addFolder("Discrete")
 
   gui.addColor(this, "color1");
   gui.addColor(this, "color2");
@@ -203,13 +222,15 @@ function addGuiControls() {
   continous.add(this, "tNeighbour", -1., 1.).step(0.001);
   continous.add(this, "feedCam");
   continous.add(this, "showCurves");
+  continous.add(this, "writeText");
+
   continous.add(this, "randomBug", 1., 24.);
   continous.add(this, "innerRadius", 1., 200.).step(1.);
   continous.add(this, "outterRadius", 3., 500).step(1.);
 
   continous.add(this, "t", 0., 1.).step(0.01);
   continous.add(this, "int", 0., 1.).step(0.01);
-
+  continous.add(this, 'message');
 }
 
 
@@ -262,17 +283,28 @@ function nStepSimulation() {
   }
 }
 
-var frameCount = 0;
+function updateMessage(){
+    createTexture.updateCanvas(lastMessage);
+    lastMessage = window.message;
+
+}
+
+window.lastMessage = "";
+var frameCount = 0,id;
 function render() {
 
-  requestAnimationFrame(render);
+    id = requestAnimationFrame(render);
 
   if (frameCount % frame == 1) {
     nStepSimulation();
-    finalMaterial.uniforms.t.value = Math.sin(frameCount) / 100 + t;
+      finalMaterial.uniforms.t.value = Math.sin(frameCount) / 100 + t;
 
   };
-  ++frameCount;
+    ++frameCount;
+
+    if (lastMessage != message){
+        updateMessage();
+    }
 
   ++bufferMaterial.uniforms.timer.value;
   bufferMaterial.uniforms.t.value = t;
@@ -302,6 +334,10 @@ function render() {
   finalMaterial.uniforms.color2.value.g = color2.g / 255;
   finalMaterial.uniforms.color2.value.b = color2.b / 255;
   finalMaterial.uniforms.activate.value = activate;
+
+
+
+
 
   renderer.render(scene, camera);
 

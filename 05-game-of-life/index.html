@@ -9,7 +9,7 @@
   <title>Game of Life Visualizer</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
-  
+
   <meta name="description" content="visualizing shaders with three.js experiment">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
@@ -45,11 +45,10 @@
   </a>
 
   <body>
-    <video id="video" autoplay="" style="display:none"></video>
     <script id="2d-vertex-shader" type="x-shader/x-vertex">
       // Vertex shader
       uniform float threshold;
-  
+
 
 
       void main() {
@@ -92,7 +91,7 @@
 
     struct CellDensity {
         vec4 inner;
-        vec4 outter; 
+        vec4 outter;
     };
 
     const float birth_min =  0.278;
@@ -100,12 +99,12 @@
 
 
     const float death_min = 0.267;
-    const float death_max = 0.345; 
+    const float death_max = 0.345;
 
     const float PI = 3.14159265359;
     const float alpha_n = 0.028;
     const float alpha_m =  0.147;
-   
+
 
     float sigma1(float x, float a, float alpha) {
       return 1.0 / (1.0 + exp(-4.0*(x-a)/alpha));
@@ -137,7 +136,7 @@
       float dr = rNeighbour;
       float a = 0.0;
       vec2 uv;
-      
+
       for(int i=-kernelRadius;i<kernelRadius;i++){
         for(int j=-kernelRadius;j<kernelRadius;j++){
 
@@ -145,7 +144,7 @@
           uv =  curves * ( PI * uv / vec2(randomBug))+ (1. - curves) * uv;
           vec4 f = texture2D(texture,uv + tNeighbour /100.);
           float r = sqrt(float(i*i + j*j)) * dr;
-        
+
           float wi= weight(r, innerRadius);
           d.inner += f * wi;
           norm_i += wi;
@@ -156,22 +155,22 @@
 
           }
         }
-    
+
         d.outter =  (d.outter - d.inner) / (norm_o - norm_i);
         d.inner /= norm_i; ;
-        
+
         return d;
     }
 
     vec2 rotateP(vec2 uv, vec2 pivot, float rotation) {
       float sine = sin(rotation);
       float cosine = cos(rotation);
-  
+
       uv -= pivot;
       uv.x = uv.x * cosine - uv.y * sine;
       uv.y = uv.x * sine + uv.y * cosine;
       uv += pivot;
-  
+
       return uv;
   }
 
@@ -181,9 +180,9 @@
       vec2 center = vec2(centerX,centerY);
 
       vec2 pixelT = (1. - zoom ) * (gl_FragCoord.xy - center) + center;
-      pixelT = rotateP(pixelT, center, rotate );   
+      pixelT = rotateP(pixelT, center, rotate );
       pos = pixelT;
-    
+
       float paintAlpha;
       if( length(pixelT - mouse ) <= pixelSize ){
           paintAlpha = 1.;
@@ -229,15 +228,15 @@
         vec2 uv = gl_FragCoord.xy / resolution;
         vec3 color3 = texture2D(start, uv).rgb;
         vec3 color4 = (color2 * (1.-activate) + (t*color3 + (1.-t )*(1.-color3) -color2) * activate);
-        
-        vec4 newColor = vec4( mix( 
+
+        vec4 newColor = vec4( mix(
           color1,
           color4,
           texture2D( texture, uv ).r), 1.0);
-          
+
         gl_FragColor = newColor;
       }
-        
+
     </script>
     <script src="/core/js/utils.js"></script>
     <script src="/core/js/index-controls.js"></script>
