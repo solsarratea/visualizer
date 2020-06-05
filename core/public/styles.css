@@ -21,21 +21,21 @@
   }
 
   .info .fab {
-    font-size: 38px; 
-    display: inline-block; 
+    font-size: 38px;
+    display: inline-block;
     vertical-align: middle;
     padding: .2em .5em;
     cursor: pointer;
   }
 
-  .info .text { 
+  .info .text {
     color: 'white';
     display: none;
     font-size: 16px;
   }
 
-  .info:hover .text { 
-    display: inline-block; 
+  .info:hover .text {
+    display: inline-block;
   }
 
   .info:hover .fab {
@@ -47,7 +47,7 @@
       background:black !important;
       width: 280px !important;
     }
-   
+
    span{
      background:black !important;
      box-shadow: 0 0 black !important;
@@ -74,7 +74,6 @@
    }
 
    .modal {
-    display: none;
       position: fixed;
       width: 50%;
       min-width: 800px;
@@ -127,7 +126,7 @@
       color: white;
       -webkit-text-emphasis: double-circle;
     }
-    
+
     .RC img{
       height: 1.5em;
     }
@@ -136,7 +135,7 @@
       width: 1.5em;
       border-left: 3px solid white;
     }
-     
+
     .modal::-webkit-scrollbar-thumb {
       border-bottom: 2px solid white;
     }

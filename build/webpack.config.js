@@ -5,9 +5,9 @@ module.exports = {
   entry: {
     "mandelbrot-set": path.resolve('../01-mandelbrot-set/js/entry.js'),
     "mandelbulb": path.resolve('../02-mandelbulb/js/entry.js'),
-    "diffusion": path.resolve('../03-diffusion/js/entry.js',),
+    "diffusion": path.resolve('../03-diffusion/js/entry.js'),
     "gsvideo": path.resolve('../04-gray-scott/js/entry.js'),
-    "gol": path.resolve('../05-game-of-life/js/entry.js')
+    "smooth-gol": path.resolve('../05-smooth-gol/js/entry.js')
   },
   devtool: 'inline-source-map',
   devServer: {
