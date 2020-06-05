@@ -131,7 +131,7 @@ function initBufferScene(){
     bufferMaterial = new THREE.ShaderMaterial( {
     uniforms: {
         bufferTexture: { type: "t", value: textureA.texture },
-        start: { type: "t", value: start,minFilter : THREE.NearestFilter },
+        start: { type: "t", value: start, minFilter : THREE.NearestFilter },
         res : {type: 'v2',value:new THREE.Vector2(window.innerWidth ,window.innerHeight)},
         brush: {type:'v3',value:new THREE.Vector3(0,0,0)},
         time: {type:'f', value:0.0},
@@ -194,6 +194,7 @@ initFinalScene();
 
 window.loadScreen = () => { clear = 1; }
 window.Brushable = () => { brush.swap(); }
+
 window.feedCam = () => {
     createTexture.updateWebcam(bufferMaterial,finalMaterial);
 }
@@ -221,14 +222,15 @@ function addGuiControls(){
     gui.add(this, "rotate", -0.1, 0.1).step(0.000001);
     gui.add(this, "centerX",0,window.innerWidth);
     gui.add(this, "centerY",0,window.innerHeight);
-    gui.add(this, "Brushable");
-    gui.add(this, "brushSize", 1, 200);
+
 
 
     background.add(this, "feedCam");
     background.add(this, "interpolate",0.,0.2).step(0.0001);
     background.add(this, "writeText");
     background.add(this, "message");
+    background.add(this, "Brushable");
+    background.add(this, "brushSize", 1, 200);
 
     rd.add(this, "iterations", 0, 100).step(1);
     rd.add(this, "dA", 0.0, 1.0).step(0.001);
