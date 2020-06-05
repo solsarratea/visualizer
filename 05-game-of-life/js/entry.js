@@ -57,19 +57,17 @@ function initBufferScene() {
 
   bufferMaterial = new THREE.ShaderMaterial({
     uniforms: {
-        start: { type: "t", value: startText, minFilter: THREE.NearestFilter },
-        texture: { type: 't', value: textureA.texture, minFilter: THREE.NearestFilter },
+      start: { type: "t", value: startText, minFilter: THREE.NearestFilter },
+      texture: { type: 't', value: textureA.texture, minFilter: THREE.NearestFilter },
       timer: { type: 'i', value: 0 },
       resolution: { type: 'v2', value: new THREE.Vector2() },
       mouse: { type: 'v2', value: new THREE.Vector2() },
-      dT: { type: 'f', value: dT },
-      t: { type: 'f', value: roundPos },
-      pixelSize: { type: 'f', value: pixelSize },
+      brushSize: { type: 'f', value: brushSize },
       bound: { type: 'f', value: frame },
       rNeighbour: { type: 'f', value: rNeighbour },
       tNeighbour: { type: 'f', value: tNeighbour },
-      threshold: { type: 'f', value: threshold },
-      inter: { type: 'f', value: int },
+      backgroundMix: { type: 'f', value: backgroundMix },
+      inter: { type: 'f', value: interpolation },
       outterRadius: { type: 'f', value: outterRadius },
       innerRadius: { type: 'f', value: innerRadius },
       zoom: { type: 'f', value: zoom },
@@ -77,7 +75,7 @@ function initBufferScene() {
       centerX: { type: 'f', value: centerX },
       centerY: { type: 'f', value: centerY },
       curves: { type: 'f', value: 0. },
-      randomBug: { type: 'f', value: randomBug }
+      randomBug: { type: 'f', value: curveSize }
 
     },
 
@@ -99,25 +97,25 @@ window.clear = 0;
 window.iterations = 1;
 window.roundPos = 0.5;
 window.dT = 0.01;
-window.pixelSize = 10.;
+window.brushSize = 10.;
 window.frame = 2.;
-window.threshold = 0.2;
+window.backgroundMix = 0.2;
 window.bound = 3.;
 window.rNeighbour = 1.;
 window.tNeighbour = 0.;
 window.activate = 0;
 window.remember = 0;
 window.travel = 0;
-window.t = 0;
+window.invert = 0;
 window.outterRadius = 30.;
 window.innerRadius = 10.;
-window.int = 0.2;
+window.interpolation = 0.2;
 window.zoom = 0.;
 window.rotate = 0.;
 window.centerX = window.innerWidth / 2.;
 window.centerY = window.innerHeight / 2.;
 window.curves = 0.;
-window.randomBug = 1.;
+window.curveSize = 1.;
 window.message = "";
 
 
@@ -128,15 +126,12 @@ function initFinalScene() {
     uniforms: {
       resolution: { type: 'v2', value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
       texture: { type: 't', value: textureB.texture, minFilter: THREE.NearestFilter },
-        start: { type: "t", value: startText.texture, minFilter: THREE.NearestFilter },
+      start: { type: "t", value: startText.texture, minFilter: THREE.NearestFilter },
       color1: { type: 'c', value: color1 },
       color2: { type: 'c', value: color2 },
       activate: { type: 'f', value: activate },
       t: { type: 'f', value: 0. },
-      zoom: { type: 'f', value: zoom },
-      rotate: { type: 'f', value: rotate },
-      centerX: { type: 'f', value: centerX },
-      centerY: { type: 'f', value: centerY }
+      zoom: { type: 'f', value: zoom }
     },
     vertexShader: document.getElementById('vertexShader').innerHTML,
     fragmentShader: document.getElementById('color').textContent
@@ -163,8 +158,8 @@ window.guiData = {
         },
         "iterations": 1,
         "roundPos": 0.5,
-        "pixelSize": 16,
-        "threshold": 0.631,
+        "brushSize": 16,
+        "backgroundMix": 0.631,
         "frame": 3,
         "bound": 3,
         "rNeighbour": 1.,
@@ -201,36 +196,35 @@ if (window.curves){
 
 function addGuiControls() {
   var gui = new dat.GUI({ load: guiData });
-  gui.remember(this);
-  continous = gui.addFolder("Continous")
-    // discrite = gui.addFolder("Discrete")
+    gui.remember(this);
+    background = gui.addFolder("Custom background texture")
+    continous = gui.addFolder("Continous")
+    //discrite = gui.addFolder("Discrete")
 
-  gui.addColor(this, "color1");
-  gui.addColor(this, "color2");
-  gui.add(this, "frame", 1., 10.).step(1);
-  gui.add(this, "pixelSize", 0.1, 100).step(1.);
-  gui.add(this, "zoom", -0.1, 0.1).step(0.000001);
-  gui.add(this, "rotate", -0.1, 0.1).step(0.000001);
-  gui.add(this, "centerX", 0, window.innerWidth);
-  gui.add(this, "centerY", 0, window.innerHeight);
+    gui.addColor(this, "color1");
+    gui.addColor(this, "color2");
+    gui.add(this, "frame", 1., 10.).step(1);
+    gui.add(this, "brushSize", 0.1, 100).step(1.);
+    gui.add(this, "zoom", -0.1, 0.1).step(0.000001);
+    gui.add(this, "rotate", -0.1, 0.1).step(0.000001);
+    gui.add(this, "centerX", 0, window.innerWidth);
+    gui.add(this, "centerY", 0, window.innerHeight);
 
-  continous.add(this, "iterations", 0, 100).step(1);
-  continous.add(this, "roundPos", -0.2, 1.).step(0.0001);
-  continous.add(this, "threshold", 0.01, 2.).step(0.001);
+    background.add(this, "feedCam");
+    background.add(this, "invert", 0., 1.).step(0.01);
+    background.add(this, "showCurves");
+    background.add(this, "curveSize", 1., 24.);
+    background.add(this, "writeText");
+    background.add(this, 'message');
 
-  continous.add(this, "rNeighbour", 0., 2.).step(0.01);
-  continous.add(this, "tNeighbour", -1., 1.).step(0.001);
-  continous.add(this, "feedCam");
-  continous.add(this, "showCurves");
-  continous.add(this, "writeText");
+    continous.add(this, "iterations", 0, 100).step(1);
+    continous.add(this, "backgroundMix", 0.01, 2.).step(0.001);
+    continous.add(this, "tNeighbour", -1., 1.).step(0.001);
+    continous.add(this, "interpolation", 0., 1.).step(0.01);
+    continous.add(this, "innerRadius", 1., 200.).step(1.);
+    continous.add(this, "outterRadius", 3., 500).step(1.);
 
-  continous.add(this, "randomBug", 1., 24.);
-  continous.add(this, "innerRadius", 1., 200.).step(1.);
-  continous.add(this, "outterRadius", 3., 500).step(1.);
 
-  continous.add(this, "t", 0., 1.).step(0.01);
-  continous.add(this, "int", 0., 1.).step(0.01);
-  continous.add(this, 'message');
 }
 
 
@@ -297,7 +291,6 @@ function render() {
 
   if (frameCount % frame == 1) {
     nStepSimulation();
-      finalMaterial.uniforms.t.value = Math.sin(frameCount) / 100 + t;
 
   };
     ++frameCount;
@@ -307,16 +300,16 @@ function render() {
     }
 
   ++bufferMaterial.uniforms.timer.value;
-  bufferMaterial.uniforms.t.value = t;
-  bufferMaterial.uniforms.pixelSize.value = pixelSize;
-  bufferMaterial.uniforms.threshold.value = threshold;
+  finalMaterial.uniforms.t.value = invert;
+  bufferMaterial.uniforms.brushSize.value = brushSize;
+  bufferMaterial.uniforms.backgroundMix.value = backgroundMix;
   bufferMaterial.uniforms.bound.value = bound;
   bufferMaterial.uniforms.rNeighbour.value = rNeighbour;
   bufferMaterial.uniforms.tNeighbour.value = tNeighbour;
-  bufferMaterial.uniforms.inter.value = int;
+  bufferMaterial.uniforms.inter.value = interpolation;
   bufferMaterial.uniforms.outterRadius.value = outterRadius;
   bufferMaterial.uniforms.innerRadius.value = innerRadius;
-  bufferMaterial.uniforms.randomBug.value = randomBug;
+  bufferMaterial.uniforms.randomBug.value = curveSize;
   bufferMaterial.uniforms.curves.value = curves;
 
 
@@ -333,7 +326,7 @@ function render() {
   finalMaterial.uniforms.color2.value.r = color2.r / 255;
   finalMaterial.uniforms.color2.value.g = color2.g / 255;
   finalMaterial.uniforms.color2.value.b = color2.b / 255;
-  finalMaterial.uniforms.activate.value = activate;
+  finalMaterial.uniforms.activate.value = Math.min(1.,activate);
 
 
 
