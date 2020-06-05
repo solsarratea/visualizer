@@ -67,18 +67,17 @@
     <video id="video" autoplay="" style="display:none"></video>
     <script id="vertexShader" type="x-shader/x-vertex">
        varying vec2 texCoordVarying;
-   
+
        void main() {
            texCoordVarying = uv;
-           gl_Position =   projectionMatrix * 
-                           modelViewMatrix * 
+           gl_Position =   projectionMatrix *
+                           modelViewMatrix *
                            vec4(position,1.0);
        }
     </script>
     <script type="x-shader/x-fragment" id="color">
         uniform vec2 resolution;
         uniform sampler2D texture;
-        uniform sampler2D video;
         uniform vec3 color1;
         uniform vec3 color2;
         uniform vec3 color3;
@@ -89,21 +88,20 @@
 
         void main(void)
         {
-            vec2 uv = (gl_FragCoord.xy / resolution); 
-            
+            vec2 uv = (gl_FragCoord.xy / resolution);
+
             vec3 black = vec3(0.0, 0.0, 0.0);
             vec3 targetColor = vec3(0.0, 0.0, 0.0);
             float sourceRamp = texture2D( texture, uv ).g * 3.0;
-          // vec3 v = texture2D(video, uv).rgb;
 
-            if (sourceRamp < 0.1) 
+            if (sourceRamp < 0.1)
             {
                 // targetColor = black;
 
                 float ramp = map(sourceRamp, 0.0, 0.1, 0.0, 1.0);
                 targetColor = mix( black, color3, min( ramp, 1.0 ) );
             }
-            else if (sourceRamp < 0.45) 
+            else if (sourceRamp < 0.45)
             {
                 float ramp = map(sourceRamp, 0.1, 0.45, 0.0, 1.0);
                 targetColor = mix( color3, color2, min( ramp, 1.0 ) );
@@ -113,9 +111,9 @@
                 float ramp = map(sourceRamp, 0.45, 1.0, 0.0, 1.0);
                 targetColor = mix( color2, color1, min( ramp, 1.0 ) );
             }
-            
+
             gl_FragColor = vec4(targetColor, .6);
-        }  
+        }
     </script>
     <script type="x-shader/x-fragment" id="fragShader">
        uniform vec2 res;
@@ -123,7 +121,7 @@
        uniform sampler2D start;
        uniform vec3 brush;
        uniform float time;
-   
+
        uniform float dA;
        uniform float dB;
        uniform float feed;
@@ -132,35 +130,35 @@
        uniform float rotate;
        uniform float centerX;
        uniform float centerY;
-   
+
        uniform float brushSize;
        uniform float flow;
-   
+
        uniform int clear;
        uniform bool enableBrush;
-   
+
        uniform float diff1;
        uniform float diff2;
        uniform float t;
 
        uniform float tNeighbour;
        uniform float rNeighbour;
-   
+
        int count = 0;
-   
+
        vec2 rotateP(vec2 uv, vec2 pivot, float rotation) {
            float sine = sin(rotation);
            float cosine = cos(rotation);
-       
+
            uv -= pivot;
            uv.x = uv.x * cosine - uv.y * sine;
            uv.y = uv.x * sine + uv.y * cosine;
            uv += pivot;
-       
+
            return uv;
        }
-   
-       void main() 
+
+       void main()
        {
            vec2 center = vec2(centerX,centerY);
            // load current values for a and b
@@ -168,17 +166,17 @@
                gl_FragColor = vec4(0.);
                return;
            }
-   
+
            vec2 pixelT = (1. - 0.03*zoom) * (gl_FragCoord.xy - center) + center;
            pixelT = rotateP(pixelT, center, rotate * 0.);
-           
+
            vec4 currentColor = texture2D(bufferTexture, (pixelT/ res.xy));
            vec4 videoColor= texture2D(start, pixelT/ res.xy);
-           
-   
+
+
            float a = currentColor.r;
            float b = currentColor.g;
-   
+
            if (enableBrush){
                float dist = distance(brush.xy, gl_FragCoord.xy);
                if (dist < brushSize)  {
@@ -186,23 +184,23 @@
                    b += 0.5 * ratio * brush.z;
                }
            }
-           
+
            vec2 pixel = gl_FragCoord.xy/res.xy;
            vec2 pixelSize = 1./res.xy;
 
-           vec2 dy = (rNeighbour * vec2(1.,-1.) + tNeighbour)*pixelSize.y; 
-           vec2 dx = (rNeighbour * vec2(1.,-1.) + tNeighbour)*pixelSize.x; 
+           vec2 dy = (rNeighbour * vec2(1.,-1.) + tNeighbour)*pixelSize.y;
+           vec2 dx = (rNeighbour * vec2(1.,-1.) + tNeighbour)*pixelSize.x;
 
            vec4 N = texture2D(bufferTexture, vec2(pixel.x, pixel.y + dy.y));
            vec4 S = texture2D(bufferTexture, vec2(pixel.x, pixel.y + dy.x));
            vec4 E = texture2D(bufferTexture, vec2(pixel.x + dx.x, pixel.y));
            vec4 W = texture2D(bufferTexture, vec2(pixel.x + dx.y, pixel.y));
-   
+
            vec4 NE = texture2D(bufferTexture, vec2(pixel.x + dx.x, pixel.y + dy.x));
            vec4 NW = texture2D(bufferTexture, vec2(pixel.x + dx.y, pixel.y + dy.x));
            vec4 SE = texture2D(bufferTexture, vec2(pixel.x + dx.x, pixel.y + dy.y));
            vec4 SW = texture2D(bufferTexture, vec2(pixel.x + dx.y, pixel.y + dy.y));
-   
+
            // Lapalace A
            float lapA = 0.0;
            lapA += a * -1.0;
@@ -214,8 +212,8 @@
            lapA += NW.r * diff2;
            lapA += SE.r * diff2;
            lapA += SW.r * diff2;
-   
-   
+
+
            // Laplace B
            float lapB = 0.0;
            lapB += b * -1.0;
@@ -227,22 +225,22 @@
            lapB += NW.g * diff2;
            lapB += SE.g * diff2;
            lapB += SW.g * diff2;
-   
-   
+
+
            // calculate diffusion reaction
            a += ((dA * lapA) - (a*b*b) + (feed * (1.0-a))) * 1.0;
            b += ((dB * lapB) + (a*b*b) - ((k + feed) * b)) * 1.0;
-   
-   
+
+
            a = clamp(a, 0.0, 1.0);
            b = clamp(b, 0.0, 1.0);
-   
+
            vec4 newColor = vec4(a, b, 1.0, 1.0);
            vec4 mixy2 =  videoColor * t * 0.1 + newColor;
-   
+
            gl_FragColor = mixy2;
        }
-   
+
      </script>
      <script src="/core/js/utils.js"></script>
     <script src="/core/public/04-guiData.js"></script>

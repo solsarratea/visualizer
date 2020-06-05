@@ -1,9 +1,8 @@
-window.video = document.createElement( 'video' );
 function Brush(){
     this.x = window.innerWidth;
     this.y = window.innerHeight;
     this.enable = 0;
-    
+
     this.isDown = false;
 
     var vx = 0;
@@ -11,7 +10,7 @@ function Brush(){
     var mx = 0;
     var my = 0;
     var mouseIsDown = false;
-    
+
     this.swap = function(){
         this.enable = !this.enable;
         console.log(this.enable)
@@ -61,13 +60,13 @@ function Brush(){
             mx = event.clientX;
             my = window.innerHeight - event.clientY;
         }
-        
+
     })
 }
-  
+
 
 var scene, camera, renderer, width,height,controls,dragControls;
-var video, videoTexture, movieScreen;   
+var video, videoTexture, movieScreen;
 function setupMainScene()
 {
   scene = new THREE.Scene();
@@ -80,8 +79,8 @@ function setupMainScene()
   document.body.appendChild( renderer.domElement );
 
 }
-  
-  
+
+
 window.dA = .2;
 window.dB = 0.2;
 window.feed = 0.031;
@@ -99,9 +98,12 @@ window.centerY = window.innerHeight/2.;
 window.interpolate = 0;
 window.tNeighbour = 0.;
 window.rNeighbour  = 1.;
+window.activate = 0.;
+window.message="hi";
 
 
-var bufferScene, textureA,textureB, initText;
+
+var bufferScene, textureA,textureB, start;
 function setupBufferScene() {
 
   bufferScene = new THREE.Scene();
@@ -119,8 +121,8 @@ function setupBufferScene() {
   type: THREE.FloatType} );
 
   createTexture = new TextureFactory();
-  createTexture.fromVideoCapture();
-  initText = createTexture.texture;
+  createTexture.fromCanvas("Reaction Diffusion");
+  start = createTexture.texture;
 
 }
 
@@ -129,7 +131,7 @@ function initBufferScene(){
     bufferMaterial = new THREE.ShaderMaterial( {
     uniforms: {
         bufferTexture: { type: "t", value: textureA.texture },
-        start: { type: "t", value: initText },
+        start: { type: "t", value: start,minFilter : THREE.NearestFilter },
         res : {type: 'v2',value:new THREE.Vector2(window.innerWidth ,window.innerHeight)},
         brush: {type:'v3',value:new THREE.Vector3(0,0,0)},
         time: {type:'f', value:0.0},
@@ -150,7 +152,7 @@ function initBufferScene(){
         t:  {type:'f', value: interpolate},
         tNeighbour:  {type:'f', value: tNeighbour},
         rNeighbour:  {type:'f', value: rNeighbour},
-        
+
 
     },
         fragmentShader: document.getElementById( 'fragShader' ).innerHTML
@@ -160,17 +162,17 @@ function initBufferScene(){
     bufferObject = new THREE.Mesh( plane, bufferMaterial );
     bufferScene.add(bufferObject);
 }
-  
-  
+
+
 window.color1 = new THREE.Color(255, 255, 0);
 window.color2 = new THREE.Color(255, 0, 0);
 window.color3 = new THREE.Color(0, 204, 255);
-  
+
 var finalMaterial, geom, quad;
 function initFinalScene(){
   finalMaterial = new THREE.ShaderMaterial( {
     uniforms : {
-      video: { type : 't', value : initText, minFilter : THREE.NearestFilter },
+      start: { type : 't', value : start, minFilter : THREE.NearestFilter },
       resolution : { type : 'v2', value : new THREE.Vector2( window.innerWidth, window.innerHeight) },
       texture : { type : 't', value : textureB.texture, minFilter : THREE.NearestFilter },
       color1 : { type : 'c', value : color1 },
@@ -182,7 +184,7 @@ function initFinalScene(){
 
   geom = new THREE.PlaneBufferGeometry( window.innerWidth, window.innerHeight);
   quad = new THREE.Mesh( geom, finalMaterial );
-  scene.add(quad);   
+  scene.add(quad);
 }
 
 setupMainScene();
@@ -192,52 +194,83 @@ initFinalScene();
 
 window.loadScreen = () => { clear = 1; }
 window.Brushable = () => { brush.swap(); }
+window.feedCam = () => {
+    createTexture.updateWebcam(bufferMaterial,finalMaterial);
+}
+
+window.writeText = () => {
+    createTexture.fromCanvas("ready!");
+
+    bufferMaterial.uniforms.start.value = createTexture.texture;
+    finalMaterial.uniforms.start.value = createTexture.texture;
+
+}
 
 function addGuiControls(){
   var gui = new dat.GUI({load: guiData });
-      gui.remember(this);
-      
-      gui.addColor(this, "color1");
-      gui.addColor(this, "color2");
-      gui.addColor(this, "color3");
-      gui.add(this, "interpolate",0.,0.2).step(0.0001);
-      gui.add(this, "dA", 0.0, 1.0).step(0.001);
-      gui.add(this, "dB", 0.0, 1.0).step(0.001);
-      gui.add(this, "feed", 0.0, 0.15).step(0.0001);
-      gui.add(this, "kill", 0.0, 0.15).step(0.0001);
-      gui.add(this, "timeStep", 0.0, 0.1).step(0.0001);
-      gui.add(this, "iterations", 0, 100).step(1);
-      gui.add(this, "zoom", -0.1, 0.1).step(0.000001);
-      gui.add(this, "rotate", -0.1, 0.1).step(0.000001);
-      gui.add(this, "centerX",0,window.innerWidth);
-      gui.add(this, "centerY",0,window.innerHeight);
-      gui.add(this, "Brushable");
-      gui.add(this, "brushSize", 1, 200);
-      gui.add(this, "rNeighbour", 0.0, 10.0).step(0.1);
-      gui.add(this, "tNeighbour", -rNeighbour, rNeighbour).step(0.5);
+    gui.remember(this);
+    background = gui.addFolder("Custom background texture")
+    rd = gui.addFolder("Reaction Diffusion");
+
+
+    gui.addColor(this, "color1");
+    gui.addColor(this, "color2");
+    gui.addColor(this, "color3");
+    gui.add(this, "timeStep", 0.0, 0.1).step(0.0001);
+    gui.add(this, "zoom", -0.1, 0.1).step(0.000001);
+    gui.add(this, "rotate", -0.1, 0.1).step(0.000001);
+    gui.add(this, "centerX",0,window.innerWidth);
+    gui.add(this, "centerY",0,window.innerHeight);
+    gui.add(this, "Brushable");
+    gui.add(this, "brushSize", 1, 200);
+
+
+    background.add(this, "feedCam");
+    background.add(this, "interpolate",0.,0.2).step(0.0001);
+    background.add(this, "writeText");
+    background.add(this, "message");
+
+    rd.add(this, "iterations", 0, 100).step(1);
+    rd.add(this, "dA", 0.0, 1.0).step(0.001);
+    rd.add(this, "dB", 0.0, 1.0).step(0.001);
+    rd.add(this, "feed", 0.0, 0.15).step(0.0001);
+    rd.add(this, "kill", 0.0, 0.15).step(0.0001);
+    rd.add(this, "rNeighbour", 0.0, 10.0).step(0.1);
+    rd.add(this, "tNeighbour", -rNeighbour, rNeighbour).step(0.5);
+
+
 }
 addGuiControls();
-  
+
 function nStepSimulation(){
     for (var i=0; i<iterations; i++){
         //Draw to textureB
         renderer.setRenderTarget(textureB);
         renderer.render(bufferScene, camera);
-    
+
         renderer.setRenderTarget(null);
         renderer.clear();
-            
-    
+
+
         //Swap textureA and B
         var temp = textureA;
         textureA = textureB;
         textureB = temp;
-    
+
         quad.material.map = textureB.texture;
         bufferMaterial.uniforms.bufferTexture.value = textureA.texture;
     }
 }
-  
+
+
+function updateMessage(){
+    createTexture.updateCanvas(lastMessage);
+    lastMessage = window.message;
+
+}
+
+window.lastMessage = "";
+
 var currentTime = bufferMaterial.uniforms.time.value;
 function render() {
     requestAnimationFrame( render );
@@ -247,7 +280,10 @@ function render() {
     bufferMaterial.uniforms.brush.value.y = brush.y;
     bufferMaterial.uniforms.brush.value.z = brush.isDown;
 
-    nStepSimulation(); 
+    nStepSimulation();
+    if (lastMessage != message){
+        updateMessage();
+    }
 
     bufferMaterial.uniforms.time.value += timeStep;
     bufferMaterial.uniforms.zoom.value = zoom;
