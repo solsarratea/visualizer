@@ -34,7 +34,7 @@
       </h4
        <p> It explores the rendering of pattern formation. </p>
        <h3> Controls : on the right of the screen </h3>
-       <div class="folder">- CUSTOM BACKGROUND TEXTURE:>
+       <div class="folder">- CUSTOM BACKGROUND TEXTURE:
          <p>- feedCam: toggles on video capture</p>
          <p>- invert: inverts colors of video capture</p>
          <p>- showCurves: toggles scaled pattern. With video capture resembles to curves.</p>
@@ -42,14 +42,12 @@
          <p>- writeText: toggles custom text</p>
          <p>- message: write text used as background. use '-' to create new line </p>
        </div>
-      <div class="folder">- SMOOTH GAME OF LIFE://
+      <div class="folder">- SMOOTH GAME OF LIFE:
         <p>- iterations: numbers of times the algorithm is executed per frame</p>
         <p>- backgroundMix: interpolates background texture, it can be text or camera capture.</p>
-        <p>- rNeighbour: radius of local neighbourhood. </p>
         <p>- tNeighbour: translate local neighbourhood. Bounded by size of radius.</p>
         <p>- innerRadius and outterRadius: controls radius of local neighbourhood </p>
-        <p>- interpolation: mixing amount/ with video texture</p>
-/
+        <p>- interpolation: mixing amount with background texture</p>
       </div>
         <p>- frame: indicates the frequency of rendering</p>
         <p>- colorA and colorb: define color pallete</p>
@@ -219,7 +217,7 @@
       float n = cell.inner.r;
       //CHECK OUT
       float newState =  2. *S(n,m) - f;
-          newState = mix( newState,f, inter * 0.1);
+          newState = mix( newState,f, inter * 0.01);
       newState = mix(newState,1.0,paintAlpha);
 
 

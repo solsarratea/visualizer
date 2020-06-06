@@ -218,7 +218,7 @@ function addGuiControls() {
     continous.add(this, "iterations", 0, 100).step(1);
     continous.add(this, "backgroundMix", 0.01, 2.).step(0.001);
     continous.add(this, "tNeighbour", -1., 1.).step(0.001);
-    continous.add(this, "interpolation", 0., 1.).step(0.01);
+    continous.add(this, "interpolation", 0., 9.).step(0.01);
     continous.add(this, "innerRadius", 1., 200.).step(1.);
     continous.add(this, "outterRadius", 3., 500).step(1.);
 
