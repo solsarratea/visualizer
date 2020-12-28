@@ -57,6 +57,37 @@ window.guiData= {
           "orY": -16.681
         }
       },
+        "rainbow": {
+            "0": {
+                "colorA": {
+                    "r": 0,
+                    "g": 0,
+                    "b": 0
+                },
+                "colorB": {
+                    "r": 107.10000000000001,
+                    "g": 107.10000000000001,
+                    "b": 107.10000000000001
+                },
+                "colorC": {
+                    "r": 255,
+                    "g": 24.4640625,
+                    "b": 24.4640625
+                },
+                "colorD": {
+                    "r": 242.25,
+                    "g": 122.56335937499998,
+                    "b": 122.56335937499998
+                },
+                "scapeRadius": 3,
+                "iterations": 37.7,
+                "rainbowAmount": 1,
+                "zoom": 3,
+                "orX": -1.7000000000000002,
+                "orY": -0.1837
+            }
+        },
+
       "plantas": {
         "0": {
           "colorA": {
@@ -118,7 +149,7 @@ window.guiData= {
         }
       }
     },
-    "preset": "violeta",
+    "preset": "rainbow",
     "closed": false,
     "folders": {
       "Zoom": {
@@ -133,4 +164,3 @@ window.guiData= {
       }
     }
   }
-  

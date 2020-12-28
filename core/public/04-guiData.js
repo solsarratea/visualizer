@@ -1,5 +1,5 @@
 window.guiData = {
-  "preset": "dark yellow fish",
+  "preset": "gray",
   "remembered": {
     "blue fish": {
       "0": {
@@ -178,7 +178,6 @@ window.guiData = {
         "iterations": 1
       }
     },
-
     "redblue": {
       "0": {
         "color1": {
@@ -332,8 +331,53 @@ window.guiData = {
         "centerY": 593.4177815410669,
         "interpolate": 0.0256
       }
+    },
+    "gray": {
+      "0": {
+        "color1": {
+          "r": 255,
+          "g": 255,
+          "b": 255
+        },
+        "color2": {
+          "r": 108.15054272460938,
+          "g": 109.6754522705078,
+          "b": 117.3
+        },
+        "color3": {
+          "r": 38.841580078125006,
+          "g": 38.841580078125006,
+          "b": 40.80000000000001
+        },
+        "timeStep": 0.003,
+        "zoom": 0.001473,
+        "rotate": 0,
+        "centerX": 925,
+        "centerY": 490.5,
+        "interpolate": 0.0294,
+        "message": "hi",
+        "brushSize": 142.9454699407282,
+        "iterations": 1,
+        "dA": 0.778,
+        "dB": 0.421,
+        "feed": 0.0078000000000000005,
+        "kill": 0.051000000000000004,
+        "rNeighbour": 1,
+        "tNeighbour": 0
+      }
     }
   },
   "closed": false,
-  "folders": {}
+  "folders": {
+    "Custom background texture": {
+      "preset": "Default",
+      "closed": false,
+      "folders": {}
+    },
+    "Reaction Diffusion": {
+      "preset": "Default",
+      "closed": false,
+      "folders": {}
+    }
+  }
 }

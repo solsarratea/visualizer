@@ -142,7 +142,8 @@
        uniform float flow;
 
        uniform int clear;
-       uniform bool enableBrush;
+      uniform bool enableBrush;
+      uniform bool toggle;
 
        uniform float diff1;
        uniform float diff2;
@@ -166,7 +167,8 @@
        }
 
        void main()
-       {
+      {
+          vec4 mixy2;
            vec2 center = vec2(centerX,centerY);
            // load current values for a and b
            if (clear==1) {
@@ -192,6 +194,7 @@
                }
            }
 
+           if(toggle){
            vec2 pixel = gl_FragCoord.xy/res.xy;
            vec2 pixelSize = 1./res.xy;
 
@@ -243,9 +246,10 @@
            b = clamp(b, 0.0, 1.0);
 
            vec4 newColor = vec4(a, b, 1.0, 1.0);
-           vec4 mixy2 =  videoColor * t * 0.1 + newColor;
+           mixy2 =  videoColor * t * 0.1 + newColor;
+           }
 
-           gl_FragColor = mixy2;
+           gl_FragColor = (toggle ? mixy2 : videoColor);
        }
 
      </script>

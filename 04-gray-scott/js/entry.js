@@ -100,6 +100,7 @@ window.tNeighbour = 0.;
 window.rNeighbour  = 1.;
 window.activate = 0.;
 window.message="hi";
+window.toggle=true;
 
 
 
@@ -142,6 +143,7 @@ function initBufferScene(){
         brushSize: {type:'f', value:brushSize},
         clear: {type:'i', value:clear},
         enableBrush: {type:'i', value: 0},
+        toggle: {type:'i', value: 0},
         flow: {type:'f', value:flow},
         diff1:  {type:'f', value: 0.2*flow},
         diff2:  {type:'f', value: 0.05*flow},
@@ -194,6 +196,10 @@ initFinalScene();
 
 window.loadScreen = () => { clear = 1; }
 window.Brushable = () => { brush.swap(); }
+window.applyReactionDiffusion = () => {
+    toggle = !toggle;
+    console.log(toggle)
+}
 
 window.feedCam = () => {
     createTexture.updateWebcam(bufferMaterial,finalMaterial);
@@ -232,6 +238,7 @@ function addGuiControls(){
     background.add(this, "Brushable");
     background.add(this, "brushSize", 1, 200);
 
+    rd.add(this, "applyReactionDiffusion");
     rd.add(this, "iterations", 0, 100).step(1);
     rd.add(this, "dA", 0.0, 1.0).step(0.001);
     rd.add(this, "dB", 0.0, 1.0).step(0.001);
@@ -296,6 +303,7 @@ function render() {
     bufferMaterial.uniforms.brushSize.value = brushSize;
     bufferMaterial.uniforms.clear.value = clear;
     bufferMaterial.uniforms.enableBrush.value = brush.enable;
+    bufferMaterial.uniforms.toggle.value = toggle;
     bufferMaterial.uniforms.flow.value = flow;
     bufferMaterial.uniforms.rotate.value = rotate;
     bufferMaterial.uniforms.centerX.value = centerX;
@@ -319,5 +327,5 @@ function render() {
 
   renderer.render( scene, camera );
 }
-
+window.feedCam();
 render();
