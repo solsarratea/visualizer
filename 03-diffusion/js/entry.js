@@ -212,6 +212,12 @@ function render() {
     renderer.render( scene, camera );
  }
 
+window.onclick = function(event) {
+    window.isPlay = true;
+    if (window.isPlay){
+        render()
+    }
+}
 
 setupMainScene();
 setupBufferScene();
@@ -219,4 +225,3 @@ initBufferScene();
 initMainScene();
     
 addGuiControls();
-render();

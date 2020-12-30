@@ -64,7 +64,6 @@ function Brush(){
     })
 }
 
-
 var scene, camera, renderer, width,height,controls,dragControls;
 var video, videoTexture, movieScreen;
 function setupMainScene()
@@ -282,6 +281,7 @@ window.lastMessage = "";
 
 var currentTime = bufferMaterial.uniforms.time.value;
 function render() {
+    if (!window.isPlay) return;
     requestAnimationFrame( render );
 
     brush.update();
@@ -325,7 +325,15 @@ function render() {
     finalMaterial.uniforms.color3.value.b = color3.b/255;
 
 
-  renderer.render( scene, camera );
+    renderer.render( scene, camera );
 }
+
+window.onclick = function(event) {
+    window.isPlay = true;
+    if (window.isPlay){
+        render()
+    }
+}
+
 window.feedCam();
 render();

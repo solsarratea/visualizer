@@ -109,5 +109,10 @@ window.addEventListener('resize', onWindowResize, false);
 
 setupScene();
 initScene();
-render();
 addGuiControls();
+window.onclick = function(event) {
+    window.isPlay = true;
+    if (window.isPlay){
+        render()
+    }
+}

@@ -149,4 +149,10 @@ setupScene();
 initScene();
 addControls();
 addGuiControls();
-render();
+
+window.onclick = function(event) {
+    window.isPlay = true;
+    if (window.isPlay){
+        render()
+    }
+}
