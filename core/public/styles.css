@@ -76,8 +76,8 @@
    .modal {
       position: fixed;
       width: 50%;
-      min-width: 800px;
-      min-height: 300px;
+      min-width: 40%;
+      min-height: 27%;
       height: 88%;
       background: rgba(0, 0, 0, 1);
       border: 3px solid white;
