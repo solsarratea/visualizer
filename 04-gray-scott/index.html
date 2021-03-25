@@ -9,8 +9,27 @@
   <title>Gray Scott Visualizer</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <meta property="og:title" content="visualizer: reaction diffusion">
 
-  <meta name="description" content="visualizing shaders with three.js experiment">
+  <!--Preview Images-->
+  <meta property="og:image" content="https://visualizer.solquemal.com/04-gray-scott/images/social-media-preview.gif">
+  <link rel="image_src" href="/04-gray-scott/images/social-media-preview.gif">
+
+  <!--Description-->
+   <meta name="description" content="Visualizing reaction diffusion systems on customized textures: webcam capture and text">
+  <meta property="og:description" content="Visualizing reaction diffusion systems on customized textures: webcam capture and text">
+
+  <!--Author-->
+
+  <meta name="author" content="sol sarratea">
+
+  <!--Twitter config-->
+  <meta name="twitter:title"  content="visualizer: reaction-diffusion">
+  <meta name="twitter:description" content="Visualizing reaction diffusion systems on customized textures: webcam capture and text">
+  <meta name="twitter:image"  content="https://visualizer.solquemal.com/04-gray-scott/images/social-media-preview.gif">
+  <meta name="twitter:card" content="summary_large_image">
+
+
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
     integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
@@ -18,6 +37,11 @@
 </head>
 
 <body>
+   <a id="screenshot" class="info">
+     <span class="fab fas fa-camera-retro fa-2x"></span>
+      <span class="text">Take screenshot</span>
+   </a>
+
   <a id="btn" class="info">
     <span class="fab fas fa-info-circle info"></span>
   </a>
@@ -69,7 +93,18 @@
     <span class="fab fa-github"></span>
     <span class="text">View source</span>
   </a>
-
+    <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="info" id="tweetB">
+    <i class="fab fa-twitter"></i>
+    <span class="text">Share</span>
+  </a>
+  <a href='https://ko-fi.com/Q5Q62LLVG' class="info" target="_blank">
+     <span class="fab fa-gratipay"></span>
+     <span class="text">Support us</span>
+  </a>
+  <a href="https://forms.gle/3PvtJNVXgp1Cv29CA" class="info" target="_blank">
+    <span class="fas fa-comment-dots "></span>
+    <span class="text">Send feedback!</span>
+  </a>
   <body>
     <video id="video" autoplay="" style="display:none"></video>
     <script id="vertexShader" type="x-shader/x-vertex">
@@ -256,6 +291,7 @@
      <script src="/core/js/utils.js"></script>
     <script src="/core/public/04-guiData.js"></script>
     <script src="/core/js/index-controls.js"></script>
+    <script src="/core/js/filesaver.js"></script>
     <script src="../dist/gsvideo.bundle.js"></script> <!-- Use in production -->
     <!-- <script src="http://localhost:9001/dist/gsvideo.bundle.js"></script> -->
     <!-- Use in development -->

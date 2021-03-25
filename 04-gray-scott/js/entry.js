@@ -73,9 +73,13 @@ function setupMainScene()
   var height = window.innerHeight;
   camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
   camera.position.z = 2;
-  renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({
+        preserveDrawingBuffer: true
+    });
+    renderer.domElement.id = 'glCanvas';
   renderer.setSize( window.innerWidth, window.innerHeight );
-  document.body.appendChild( renderer.domElement );
+    document.body.appendChild( renderer.domElement );
+
 
 }
 
