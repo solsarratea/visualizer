@@ -340,4 +340,5 @@ window.onclick = function(event) {
 }
 
 window.feedCam();
+window.onclick()
 render();
